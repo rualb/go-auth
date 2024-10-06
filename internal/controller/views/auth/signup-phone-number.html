@@ -1,0 +1,131 @@
+
+ 
+{{ if not .Model.IsRenderModeMessage }}
+<div class="container">
+    <div class="">
+        <form method="post" class="e-form-login border rounded shadow p-3 d-flex flex-column gap-1">
+
+            <input value="{{ .Prm.Csrf }}" name="_csrf" type="hidden" />
+
+            <h4 class="text-center mb-3">{{ call .API.Lang .Prm.Title }}</h4>
+
+            {{ if .Model.IsStepSecretCode }}
+            <h6 class="text-center mb-1">{{ call .API.Lang "Enter the secret code we have sent to your phone number." }}</h6>
+            {{ end }}
+
+            {{ if .Model.IsStepPassword }}
+            <h6 class="text-center mb-1">{{ call .API.Lang "Enter your password." }}</h6>
+            {{ end }}
+
+            {{ if .Model.StatusMessage }}
+            <h6 class="card-text text-center {{ if .Model.IsStatusMessageError }}text-danger{{ else }}text-success{{ end }}">
+                {{ .Model.StatusMessage }}
+            </h6>
+            {{ end }}
+
+            {{ template "model_errors" .Model }}
+  
+            <div class="text-danger" role="alert"></div>
+
+            {{ if .Model.IsStepID }}
+            <div class="input-group">
+                <span class="input-group-text" role="button">
+                    <span>{{ .Model.PhoneNumberPrefix }}</span>
+                    <input name="phone_number_prefix" value="{{ .Model.PhoneNumberPrefix }}" type="hidden" />
+                </span>
+
+                <div class="form-floating">
+                    <input 
+                    type="tel" id="phone_number" name="phone_number" value="{{ .Model.PhoneNumber }}" class="form-control" autocomplete="tel" aria-required="true"
+                           placeholder='{{ call .API.Lang "Phone number" }}'
+                           autofocus required 
+                           minlength="{{ .Prm.AppConst.PhoneNumberMinLength }}" maxlength="{{ .Prm.AppConst.PhoneNumberMaxLength }}" />
+                    <label for="phone_number" class="form-label">{{ call .API.Lang "Phone number" }}</label>
+                </div>
+            </div>
+            <span class="text-danger"></span>
+            {{ else }}
+            <input value="{{ .Model.PhoneNumberPrefix }}" name="phone_number_prefix" type="hidden" />
+            <input value="{{ .Model.PhoneNumber }}" name="phone_number" type="hidden" />
+            {{ end }}
+
+            {{ if .Model.IsStepSecretCode }}
+            <div class="input-group">
+                <div class="form-floating">
+                    <input type="text" id="secret_code" name="secret_code" value="{{ .Model.SecretCode }}" class="form-control" autocomplete="off" aria-required="true"
+                           placeholder='{{ call .API.Lang "Secret code" }}'
+                           autofocus
+                           required minlength="{{ .Prm.AppConst.SecretCodeLength }}" maxlength="{{ .Prm.AppConst.SecretCodeLength }}" />
+                    <label for="secret_code" class="form-label">{{ call .API.Lang "Secret code" }}</label>
+                </div>
+            </div>
+            <span class="text-danger"></span>
+            {{ end }}
+
+            {{ if .Model.IsStepPassword }}
+            <div class="input-group">
+                <div class="form-floating">
+                    <input type="password" id="password" name="password" value="{{ .Model.Password }}" class="form-control" autocomplete="password" aria-required="true"
+                           placeholder='{{ call .API.Lang "Password" }}'
+                           autofocus
+                           required minlength="{{ .Prm.AppConst.PasswordMinLength }}" maxlength="{{ .Prm.AppConst.DefaultTextSize }}" />
+                    <label for="password" class="form-label">{{ call .API.Lang "Password" }}</label>
+                </div>
+                <span class="input-group-text" role="button" onclick="let me=this;let p=me.parentElement;p.querySelectorAll('input').forEach(x=>{x.type=x.type=='text'?'password':'text';}); ">
+                    {{ call .API.Icon "Eye" }}
+                </span>
+            </div>
+            <span class="text-danger"></span>
+            {{ end }}
+
+            <button type="submit" class="w-100 btn btn-lg btn-primary my-2 e-nav-submit">{{ call .API.Lang "Continue" }}</button>
+
+            {{ if .Model.IsStepSecretCode }}
+            <p class="mb-3 small text-center">{{ call .API.Lang "The secret code is valid for {0} seconds after it is sent." "30" }}</p>
+            {{ end }}
+
+            <p class="my-1">&nbsp;</p>
+            <p class="mb-3 small text-center text-secondary">{{ call .API.Lang "By signing up, you agree to our Terms, Privacy Policy and Cookies Policy." }}</p>
+
+            <input value="{{ .Model.SecretString }}" name="secret_string" type="hidden" />
+            <input value="{{ .Model.StepName }}" name="step_name" type="hidden" /> 
+            {{/*
+            <input value="{{ .Model.ReturnURL }}" name="return_url" type="hidden" />
+            */}}
+        </form>
+    </div>
+</div>
+{{ else }}
+
+{{ $class := "text-success" }}
+{{ $icon := "InfoCircle" }}
+{{ if .Model.IsStatusMessageError }}
+  {{ $class = "text-danger" }}
+  {{ $icon := "AlertTriangle" }}
+{{ end }}
+
+<div class="container">
+    <div class="card mb-3 mx-auto e-box-width">
+        <div class="card-header text-start  {{ $class }}">
+            {{ call .API.Icon $icon }}
+        </div>
+        <div class="card-body text-center  {{ $class }}">
+            <p class="card-title h5">
+                {{ call .API.Lang .Prm.Title }}
+            </p>
+            <h6 class="card-text $class">
+                {{ .Model.StatusMessage }}
+            </h6>
+            <p class="card-text d-flex flex-row justify-content-center">
+                {{ $signin_url := call .API.URL "signin" "return_url" .Model.ReturnURL }}
+                <a class="btn btn-success rounded-pill d-flex align-items-center lh-1 e-nav-sign-in" href="{{ $signin_url }}">
+                    {{ call .API.Icon "Login" }}{{ call .API.Lang "Sign in" }}
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+
+{{ end }}
+ 

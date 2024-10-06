@@ -1,0 +1,68 @@
+{{define "layout_header"}}
+<!DOCTYPE html>
+<html lang="{{ .Prm.LangCode }}">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ call .API.Lang .Prm.Title }}</title>
+    <link rel="stylesheet"
+        href="{{ .Prm.AppConfig.AssetsPublicURLOrigin }}{{ .Prm.AppConfig.AssetsPathIndexCss }}?_c={{ .Prm.AppConfig.AssetsGlobalVersion }}"
+        crossorigin="anonymous" />
+    <script>
+        (function () {
+            //prevent blinking on darck theme
+            let _theme = localStorage.getItem('.theme') || '';
+            let _el = document.documentElement;//<html/>
+            if (!_theme) {
+                const _prefDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (_prefDark) _theme = 'dark';
+            }
+            if (_theme)
+                _el.dataset.bsTheme = _theme;
+        })();
+    </script>
+
+</head>
+<body class="">
+    <header class="e-header">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow py-1 mb-1">
+            <div class="container">
+                <a class="navbar-brand" href="/">{{ .Prm.AppConfig.AppTitle }}</a>
+            </div>
+        </nav>
+    </header>
+    <main class="d-flex flex-column gap-1 pb-4">
+{{end}}
+
+{{define "layout_footer"}}
+    </main>
+    <footer class="border-top e-footer text-muted">
+        <div class="container small d-flex">
+            <div class="flex-grow-1 d-flex flex-row gap-1">
+                <a href="/doc/about" class="link-secondary"><span>{{ call .API.Lang "About" }}</span></a>
+                <a href="/doc/terms" class="link-secondary"><span>{{ call .API.Lang "Terms" }}</span></a>
+                <a href="/doc/privacy" class="link-secondary"><span>{{ call .API.Lang "Privacy" }}</span></a>
+            </div>
+            <div>
+                <button class="btn btn-sm d-flex align-items-center" onclick="APP.THEME.TOGGLE()">
+                    {{ call .API.Icon "Sun" }}
+                </button>
+            </div>
+        </div>
+        <div class="container small d-flex">
+            <div class="flex-grow-1 text-center text-secondary">
+                <span>{{ .Prm.AppConfig.CopyrightTitle }}</span>
+            </div>
+        </div>
+    </footer>
+    <script
+        src="{{ .Prm.AppConfig.AssetsPublicURLOrigin }}{{ .Prm.AppConfig.AssetsPathIndexJs }}?_c={{ .Prm.AppConfig.AssetsGlobalVersion }}"
+        crossorigin="anonymous"></script>
+    <script data-app-config type="application/json">
+        {{ .Prm.RawJSONData }}
+    </script>
+</body>
+</html>
+
+{{end}}

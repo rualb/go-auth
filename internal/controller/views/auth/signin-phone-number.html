@@ -1,0 +1,100 @@
+{{ if not .Model.IsRenderModeMessage }}
+<div class="container">
+
+    <div class="">
+
+        <form method="post" class="e-form-login border rounded shadow p-3 d-flex flex-column gap-1">
+
+            <input value="{{ .Prm.Csrf }}" name="_csrf" type="hidden" />
+
+            <h4 class="text-center mb-3">{{ call .API.Lang .Prm.Title }}</h4>
+            
+            {{ if .Model.StatusMessage }}
+            <h6 class="card-text text-center {{ if .Model.IsStatusMessageError }}text-danger{{ else }}text-success{{ end }}">
+                {{ .Model.StatusMessage }}
+            </h6>
+            {{ end }}
+
+            {{ template "model_errors" .Model }}
+
+            <div class="input-group">
+                <span class="input-group-text" role="button" onclick=" ">
+                    <span>{{ .Model.PhoneNumberPrefix }}</span>
+                    <input name="phone_number_prefix" value="{{ .Model.PhoneNumberPrefix }}" type="hidden" />
+                </span>
+
+                <div class="form-floating">
+                    <input type="tel" id="phone_number" name="phone_number" value="{{ .Model.PhoneNumber }}" class="form-control" autocomplete="tel" aria-required="true"
+                           placeholder="{{ call .API.Lang "Phone number" }}"
+                           autofocus
+                           required minlength="{{ .Prm.AppConst.PhoneNumberMinLength }}" maxlength="{{ .Prm.AppConst.PhoneNumberMaxLength }}" />
+                    <label for="phone_number" class="form-label">{{ call .API.Lang "Phone number" }}</label>
+                </div>
+            </div>
+ 
+            <div class="input-group">
+                <div class="form-floating">
+                    <input type="password" id="password" name="password" value="{{ .Model.Password }}" class="form-control" autocomplete="password" aria-required="true"
+                           placeholder="{{ call .API.Lang "Password" }}"
+                           required minlength="{{ .Prm.AppConst.PasswordMinLength }}" maxlength="{{ .Prm.AppConst.DefaultTextSize }}" />
+                    <label for="password" class="form-label">{{ call .API.Lang "Password" }}</label>
+                </div>
+                <span class="input-group-text" role="button" onclick="let me=this;let p=me.parentElement;p.querySelectorAll('input').forEach(x=>{x.type=x.type=='text'?'password':'text';}); ">
+                    {{ call .API.Icon "Eye" }}
+                </span>
+            </div>
+
+           
+            <button type="submit" class="w-100 btn btn-lg btn-primary my-2 e-nav-submit">{{ call .API.Lang "Continue" }}</button>
+
+            <div class="">
+                <p>
+                    {{ $forgot_password_url := call .API.URL "forgot_password" "return_url" .Model.ReturnURL }}
+                    <a class="e-nav-sign-in-forgot" href="{{ $forgot_password_url }}">{{ call .API.Lang "Forgot your password?" }}</a>
+                </p>
+                <p class="">
+                    {{ $signup_url := call .API.URL "signup" "return_url" .Model.ReturnURL }}
+                    <a class="e-nav-sign-up" href="{{ $signup_url }}">{{ call .API.Lang "Create a new account" }}</a>
+                </p>
+            </div>
+            {{/*
+            <input type="hidden" name="return_url" value="{{ .Model.ReturnURL }}" />
+            */}}
+        </form>
+
+    </div>
+
+</div>
+
+{{ else }}
+
+{{ $class := "text-success" }}
+{{ $icon := "InfoCircle" }}
+{{ if .Model.IsStatusMessageError }}
+  {{ $class = "text-danger" }}
+  {{ $icon := "AlertTriangle" }}
+{{ end }}
+
+<div class="container">
+    <div class="card mb-3 mx-auto e-box-width">
+        <div class="card-header text-start  {{ $class }}">
+            {{ call .API.Icon $icon }}
+        </div>
+        <div class="card-body text-center  {{ $class }}">
+            <p class="card-title h5">
+                {{ call .API.Lang .Prm.Title }}
+            </p>
+            <p class="fw-medium card-text $class">
+                {{ .Model.StatusMessage }}
+            </p>
+            <p class="card-text d-flex flex-row justify-content-center">
+               
+                    <a class="btn btn-primary rounded-pill" href="/">{{ call .API.Lang "Home page" }}</a>
+            
+            </p>
+        </div>
+    </div>
+</div>
+
+
+{{ end }}

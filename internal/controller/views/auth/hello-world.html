@@ -1,0 +1,41 @@
+<div class="container">
+    <p>
+        <b>Name:</b> {{ .Model.Name }}
+    </p>
+    <p>
+        <b>Time:</b> {{ .Model.Time }}
+    </p>
+
+    <p>
+        <b>NowStr:</b> {{ .Model.NowStr }}
+    </p>
+
+    <p>
+        <b>IsAuthenticated:</b> {{ .API.IsAuthenticated }}
+    </p>
+    <p>
+        {{ $url := call .API.URL "signup" "return_url" "hello-world" "q" "signup" "q" "signup" "qwe" "" "fragment" }}
+        <a class="link-primary" href="{{ $url }}">Sign up</a>
+    </p>
+    <p>
+        {{ $url := call .API.URL "signin" "return_url" "hello-world" "q" "signin" }}
+        <a class="link-primary" href="{{ $url }}">Sign in</a>
+    </p>
+    <p>
+        {{ $url := call .API.URL "forgot-password" "return_url" "hello-world" "q" "forgot-password" }}
+        <a class="link-primary" href="{{ $url }}">Forgot password</a>
+    </p>
+    <p>
+        {{ $url := call .API.URL "signout" "return_url" "hello-world" "q" "signout" }}
+    <form action="{{ $url }}" method="post">
+        <input value="{{ .Prm.Csrf }}" name="_csrf" type="hidden" />
+        <button type="submit" class="btn btn-link p-0">Sign out</button>
+    </form>
+
+    </p>
+
+    <p>
+        {{ $url := call .API.URL "manager" "qwe" "123" "fragment" }}
+        <a class="link-primary" href="{{ $url }}">Manager (Authorize)</a>
+    </p>
+</div>

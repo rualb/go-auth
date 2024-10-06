@@ -1,0 +1,15 @@
+<div class="container">
+    <div class="card mb-3 mx-auto e-box-width">
+        <div class="card-header text-start text-danger">
+            {{ call .API.Icon "AlertTriangle" }}
+        </div>
+        <div class="card-body text-center">
+            <p class="card-title h5 text-danger">
+                {{ call .API.Lang .Prm.Title }}
+            </p>
+            <p class="card-text fs-6">
+                {{ call .API.Lang "You do not have access to this resource" }}
+            </p>
+        </div>
+    </div>
+</div>

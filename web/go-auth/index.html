@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="{{.Model.LangCode}}">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/auth/assets/icon.svg" />
+  <title>{{.Model.Title}}</title>
+  <script data-type="app_config" type="application/json">
+    {{.Model.AppConfig}}
+  </script>
+  <script data-type="lang_data" type="application/json">
+    {{.Model.LangData}}
+  </script>
+  <script>
+    (function () {
+      //prevent blinking on darck theme
+      let _theme = localStorage.getItem('.theme') || '';
+      let _el = document.documentElement;//<html/>
+      if (!_theme) {
+        const _prefDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (_prefDark) _theme = 'dark';
+      }
+      if (_theme)
+        _el.dataset.bsTheme = _theme;
+    })();
+  </script>
+ 
+  <script type="module" crossorigin src="/auth/assets/index-BpMOf6Al.js"></script>
+  <link rel="stylesheet" crossorigin href="/auth/assets/index-Dw_uYgwh.css">
+</head>
+
+<body>
+  <div id="root">
+  </div>
+
+</body>
+
+</html>
