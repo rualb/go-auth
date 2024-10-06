@@ -6,6 +6,8 @@ import sys
 # BINARY_NAME = "app.exe" if os.name == "nt" else "app"
 # local release  goreleaser build --snapshot
 
+
+
 """
 git init
 git add .
