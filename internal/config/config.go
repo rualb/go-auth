@@ -34,9 +34,15 @@ func dumpVersionAndExitIf() {
 type CmdLineConfig struct {
 	Config  string
 	CertDir string
+
 	Env     string
 	Name    string
 	Version bool
+
+	SysAPIKey string
+	Listen    string
+	ListenTLS string
+	ListenSys string
 }
 
 const (
@@ -57,6 +63,10 @@ func ReadFlags() {
 	_ = os.Args
 	flag.StringVar(&CmdLine.Config, "config", "", "Path to dir with config files")
 	flag.StringVar(&CmdLine.CertDir, "cert-dir", "", "Path to dir with cert files")
+	flag.StringVar(&CmdLine.SysAPIKey, "sys-api-key", "", "Sys api key")
+	flag.StringVar(&CmdLine.Listen, "listen", "", "Listen")
+	flag.StringVar(&CmdLine.ListenTLS, "listen-tls", "", "Listen TLS")
+	flag.StringVar(&CmdLine.ListenSys, "listen-sys", "", "Listen sys")
 
 	flag.StringVar(&CmdLine.Env, "env", "", "Environment: development, testing, staging, production")
 	flag.StringVar(&CmdLine.Name, "name", "", "App name")
@@ -231,8 +241,8 @@ type AppConfigHTTPTransport struct {
 	MaxConnsPerHost     int `json:"max_conns_per_host,omitempty"`
 }
 type AppConfigHTTPServer struct {
-	AccessLog     bool    `json:"access_log"`
-	Metrics       bool    `json:"metrics"`
+	AccessLog bool `json:"access_log"`
+
 	RateLimit     float64 `json:"rate_limit"`
 	RateBurst     int     `json:"rate_burst"`
 	Listen        string  `json:"listen"`
@@ -247,6 +257,10 @@ type AppConfigHTTPServer struct {
 	WriteTimeout      int `json:"write_timeout,omitempty"`       // 10 to 30 seconds, WriteTimeout > ReadTimeout
 	IdleTimeout       int `json:"idle_timeout,omitempty"`        // 60 to 120 seconds
 	ReadHeaderTimeout int `json:"read_header_timeout,omitempty"` // default get from ReadTimeout
+
+	SysMetrics bool   `json:"sys_metrics"` //
+	SysAPIKey  string `json:"sys_api_key"`
+	ListenSys  string `json:"listen_sys"`
 }
 type AppConfig struct {
 	AppConfigMod
@@ -346,6 +360,8 @@ func NewAppConfig() *AppConfig {
 			// ListenTLS: "localhost:30283",
 
 			CertDir: "",
+
+			SysAPIKey: "",
 		},
 	}
 
@@ -415,8 +431,14 @@ func (x *AppConfig) readEnvVar() error {
 
 	// General configuration
 	reader.String(&x.Title, "title", nil)
-	reader.String(&x.HTTPServer.Listen, "http_listen", nil)
+
 	reader.String(&x.HTTPServer.CertDir, "cert_dir", &CmdLine.CertDir)
+
+	reader.String(&x.HTTPServer.Listen, "listen", &CmdLine.Listen)
+	reader.String(&x.HTTPServer.ListenTLS, "listen_tls", &CmdLine.ListenTLS)
+	reader.String(&x.HTTPServer.ListenSys, "listen_sys", &CmdLine.ListenSys)
+
+	reader.String(&x.HTTPServer.SysAPIKey, "sys_api_key", &CmdLine.SysAPIKey)
 
 	if reader.envError != nil {
 		return reader.envError

@@ -3,6 +3,9 @@ package main
 import (
 	"go-auth/internal/cmd"
 	"go-auth/internal/config"
+
+	"go-auth/internal/config/consts"
+	xlog "go-auth/internal/tool/toollog"
 )
 
 //nolint:gochecknoglobals
@@ -14,6 +17,9 @@ var (
 )
 
 func main() {
+
+	xlog.Info("Build info: [name: %v] [version: %v] [date: %v] [short-commit: %v]", consts.AppName, Version, Date, ShortCommit)
+
 	config.AppVersion, config.AppCommit, config.AppDate, config.ShortCommit = Version, Commit, Date, ShortCommit
 
 	config.ReadFlags()

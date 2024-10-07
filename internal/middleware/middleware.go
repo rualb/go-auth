@@ -14,6 +14,9 @@ import (
 	"github.com/labstack/echo-contrib/echoprometheus"
 )
 
+func InitBasic(e *echo.Echo, appService service.AppService) {
+
+}
 func Init(e *echo.Echo, appService service.AppService) {
 
 	appConfig := appService.Config()
@@ -43,7 +46,9 @@ func initSys(e *echo.Echo, appService service.AppService) {
 
 	// name := "" // appConfig.Name // name as var
 
-	if appConfig.HTTPServer.Metrics {
+	if appConfig.HTTPServer.SysMetrics {
+
+		// collect metrics (singleton)
 		e.Use(echoprometheus.NewMiddlewareWithConfig(
 
 			echoprometheus.MiddlewareConfig{
