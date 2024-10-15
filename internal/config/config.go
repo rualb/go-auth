@@ -165,6 +165,7 @@ type Database struct {
 	MaxIdle   int    `json:"max_idle"`
 	IdleTime  int    `json:"idle_time"`
 	Migration bool   `json:"migration"`
+	Debug     bool   `json:"debug"`
 }
 
 // type AppConfigLogger struct {
@@ -315,11 +316,11 @@ func NewAppConfig() *AppConfig {
 		},
 		Messenger: AppConfigMessenger{
 
-			ServiceURL: "http://localhost:30780/messenger/api/{code}", // prefix of url
+			ServiceURL: "http://127.0.0.1:30780/messenger/api/{code}", // prefix of url
 		},
 		DB: Database{
 			Dialect:  "postgres",
-			Host:     "localhost",
+			Host:     "127.0.0.1",
 			Port:     "5432",
 			Name:     "postgres",
 			User:     "postgres",
@@ -329,7 +330,7 @@ func NewAppConfig() *AppConfig {
 			IdleTime: 0,
 		},
 		Redis: Database{
-			Host:     "localhost",
+			Host:     "127.0.0.1",
 			Port:     "6379",
 			Name:     "redis",
 			User:     "redis",
@@ -361,8 +362,8 @@ func NewAppConfig() *AppConfig {
 			RateLimit: 0,
 			RateBurst: 0,
 
-			Listen: "localhost:30280",
-			// ListenTLS: "localhost:30283",
+			Listen: "127.0.0.1:30280",
+			// ListenTLS: "127.0.0.1:30283",
 
 			CertDir: "",
 

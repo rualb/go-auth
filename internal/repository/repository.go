@@ -96,7 +96,7 @@ func connectDatabase(
 	appConfig *config.AppConfig,
 	// logger loggerX.AppLogger,
 ) (*gorm.DB, error) {
-	config := appConfig.DB
+	cnf := &appConfig.DB
 	var dsn string
 	gormConfig := &gorm.Config{
 		SkipDefaultTransaction: true,
@@ -108,19 +108,19 @@ func connectDatabase(
 		// Logger: loggerGorm.Default.LogMode(logger_gorm.Info),
 	}
 
-	if appConfig.Debug {
+	if cnf.Debug {
 		// init logger before connect
 		gormConfig.Logger = logger.Default.LogMode(logger.Info)
 		gormConfig.Logger.Info(context.TODO(), "Gorm logger mode: info/debug")
 	}
 
-	if config.Dialect == POSTGRES {
+	if cnf.Dialect == POSTGRES {
 		dsn = fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
-			config.Host, config.Port, config.User,
-			config.Name, config.Password)
+			cnf.Host, cnf.Port, cnf.User,
+			cnf.Name, cnf.Password)
 		return gorm.Open(postgres.Open(dsn), gormConfig)
-	} else if config.Dialect == SQLITE {
-		return gorm.Open(sqlite.Open(config.Host), gormConfig)
+	} else if cnf.Dialect == SQLITE {
+		return gorm.Open(sqlite.Open(cnf.Host), gormConfig)
 	}
 
 	panic("undefined db dialect")

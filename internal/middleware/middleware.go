@@ -29,7 +29,10 @@ func Init(e *echo.Echo, appService service.AppService) {
 		e.Use(middleware.Logger())
 	}
 
-	e.Use(middleware.Gzip())
+	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
+		Level:     5,
+		MinLength: 500,
+	}))
 	//
 	e.Use(xweb.UserLangMiddleware(appService))
 	e.Use(xweb.TokenParserMiddleware(appService))
