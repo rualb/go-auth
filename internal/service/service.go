@@ -6,7 +6,7 @@ import (
 	"go-auth/internal/messenger"
 	"go-auth/internal/repository"
 	xtoken "go-auth/internal/token"
-	xlog "go-auth/internal/tool/toollog"
+	xlog "go-auth/internal/util/utillog"
 	"net/http"
 	"os"
 	"strings"

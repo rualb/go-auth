@@ -1,7 +1,7 @@
 package mvc
 
 import (
-	"go-auth/internal/tool/toolstring"
+	utilstring "go-auth/internal/util/utilstring"
 	"slices" // Ensure the import path is correct or replace with appropriate package
 	"strconv"
 	"unicode"
@@ -9,24 +9,24 @@ import (
 
 // ModelBaseDTO is a base struct for models or DTOs with validation error handling.
 type ModelBaseDTO struct {
-	ModelErrors []ModelMessage `json:"errors,omitempty"`
+	Errors []ErrorMessage `json:"errors,omitempty"`
 }
 
-// AddModelError adds an error message to the model.
-func (x *ModelBaseDTO) AddModelError(code string, msg string) {
-	x.ModelErrors = append(x.ModelErrors, ModelMessage{Code: code, Message: msg})
+// AddError adds an error message to the model.
+func (x *ModelBaseDTO) AddError(code string, msg string) {
+	x.Errors = append(x.Errors, ErrorMessage{Code: code, Message: msg})
 }
 
-// RemoveModelError removes an error message from the model by its code.
-func (x *ModelBaseDTO) RemoveModelError(code string) {
-	x.ModelErrors = slices.DeleteFunc(x.ModelErrors, func(x ModelMessage) bool {
+// RemoveError removes an error message from the model by its code.
+func (x *ModelBaseDTO) RemoveError(code string) {
+	x.Errors = slices.DeleteFunc(x.Errors, func(x ErrorMessage) bool {
 		return x.Code == code
 	})
 }
 
 // IsModelValid checks if the model has any validation errors.
 func (x *ModelBaseDTO) IsModelValid() bool {
-	return len(x.ModelErrors) == 0
+	return len(x.Errors) == 0
 }
 
 // ModelValidatorStr assists in validating fields in ModelBaseDTO.
@@ -59,7 +59,7 @@ func (x *ModelBaseDTO) NewModelValidatorStr(lang UserLang, fieldName string, fie
 func (x *ModelValidatorStr) LengthRange(minLen int, maxLen int) (hasError bool) {
 	v := x.fieldValue
 	if minLen > 0 && len(v) < minLen {
-		x.model.AddModelError(x.fieldName,
+		x.model.AddError(x.fieldName,
 			x.lang.Lang("The '{0}' must be at least {1} characters.", /*Lang*/
 				x.lang.Lang(x.fieldTitle),
 				strconv.Itoa(minLen)))
@@ -67,7 +67,7 @@ func (x *ModelValidatorStr) LengthRange(minLen int, maxLen int) (hasError bool) 
 	}
 
 	if maxLen > 0 && len(v) > maxLen {
-		x.model.AddModelError(x.fieldName,
+		x.model.AddError(x.fieldName,
 			x.lang.Lang("The '{0}' must be at most {1} characters.", /*Lang*/
 				x.lang.Lang(x.fieldTitle),
 				strconv.Itoa(maxLen)))
@@ -87,7 +87,7 @@ func (x *ModelValidatorStr) Required() (hasError bool) {
 	v := x.fieldValue
 	if len(v) < 1 {
 
-		x.model.AddModelError(x.fieldName,
+		x.model.AddError(x.fieldName,
 			x.lang.Lang("Field '{0}' is required.", /*Lang*/
 				x.lang.Lang(x.fieldTitle),
 			))
@@ -109,9 +109,9 @@ func (x *ModelValidatorStr) Password(minLen int) (hasError bool) {
 	if !hasDigitLowerUpper(v) {
 
 		t := x.lang.Lang(x.fieldTitle)
-		x.model.AddModelError(x.fieldName, x.lang.Lang("The '{0}' must have at least one digit ('0'-'9')." /*Lang*/, t))
-		x.model.AddModelError(x.fieldName, x.lang.Lang("The '{0}' must have at least one lowercase letter ('a'-'z')." /*Lang*/, t))
-		x.model.AddModelError(x.fieldName, x.lang.Lang("The '{0}' must have at least one uppercase letter ('A'-'Z')." /*Lang*/, t))
+		x.model.AddError(x.fieldName, x.lang.Lang("The '{0}' must have at least one digit ('0'-'9')." /*Lang*/, t))
+		x.model.AddError(x.fieldName, x.lang.Lang("The '{0}' must have at least one lowercase letter ('a'-'z')." /*Lang*/, t))
+		x.model.AddError(x.fieldName, x.lang.Lang("The '{0}' must have at least one uppercase letter ('A'-'Z')." /*Lang*/, t))
 
 		return true
 	}
@@ -152,8 +152,8 @@ func (x *ModelValidatorStr) Email(minLen int) (hasError bool) {
 		return true
 	}
 
-	if len(v) > 0 && !toolstring.IsEmail(v) {
-		x.model.AddModelError(x.fieldName,
+	if len(v) > 0 && !utilstring.IsEmail(v) {
+		x.model.AddError(x.fieldName,
 			x.lang.Lang("Email '{0}' is invalid." /*Lang*/, v),
 		)
 
@@ -166,8 +166,8 @@ func (x *ModelValidatorStr) Email(minLen int) (hasError bool) {
 // // PhoneNumberBody checks if the field's value is a valid phone number body.
 // func (x *ModelValidatorStr) PhoneNumberBody() (hasError bool) {
 // 	v := x.fieldValue
-// 	if len(v) > 0 && !toolstring.IsPhoneNumberBody(v) {
-// 		x.model.AddModelError(x.fieldName,
+// 	if len(v) > 0 && !utilstring.IsPhoneNumberBody(v) {
+// 		x.model.AddError(utileldName,
 // 			x.lang.Lang("Please enter a valid phone number" /*Lang*/),
 // 		)
 
@@ -180,8 +180,8 @@ func (x *ModelValidatorStr) Email(minLen int) (hasError bool) {
 // // PhoneNumberPrefix checks if the field's value is a valid phone number prefix.
 // func (x *ModelValidatorStr) PhoneNumberPrefix() (hasError bool) {
 // 	v := x.fieldValue
-// 	if len(v) > 0 && !toolstring.IsPhoneNumberPrefix(v) {
-// 		x.model.AddModelError(x.fieldName,
+// 	if len(v) > 0 && !utilstring.IsPhoneNumberPrefix(v) {
+// 		x.model.AddError(x.fieldName,
 // 			x.lang.Lang("Please enter a valid phone number" /*Lang*/),
 // 		)
 
@@ -194,8 +194,8 @@ func (x *ModelValidatorStr) Email(minLen int) (hasError bool) {
 // PhoneNumber checks if the field's value is a valid phone number.
 func (x *ModelValidatorStr) PhoneNumber() (hasError bool) {
 	v := x.fieldValue
-	if len(v) > 0 && !toolstring.IsPhoneNumberFull(v) {
-		x.model.AddModelError(x.fieldName,
+	if len(v) > 0 && !utilstring.IsPhoneNumberFull(v) {
+		x.model.AddError(x.fieldName,
 			x.lang.Lang("Please enter a valid phone number." /*Lang*/),
 		)
 

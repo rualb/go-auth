@@ -90,6 +90,7 @@ const (
 	PathAuthForgotPasswordEmailAPI       = "/auth/api/forgot-password/email"
 	PathAuthSignoutAPI                   = "/auth/api/signout"
 	PathAuthStatusAPI                    = "/auth/api/status"
+	PathAuthConfigAPI                    = "/auth/api/config"
 
 	PathAuthManager = "/auth/manager"
 )

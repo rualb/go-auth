@@ -5,12 +5,12 @@ import (
 	"go-auth/internal/config"
 	"go-auth/internal/config/consts"
 	controller "go-auth/internal/controller"
+	"go-auth/internal/util/utilratelimit"
 	"strings"
 
 	"go-auth/internal/i18n"
 	"go-auth/internal/mvc"
 	"go-auth/internal/service"
-	"go-auth/internal/tool/toolratelimit"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -34,17 +34,17 @@ type AccountSignupController struct {
 func (x *AccountSignupController) Handler() error {
 	// TODO sign out force
 
-	err := x.createDto()
+	err := x.createDTO()
 	if err != nil {
 		return err
 	}
 
-	err = x.handleDto()
+	err = x.handleDTO()
 	if err != nil {
 		return err
 	}
 
-	err = x.responseDto()
+	err = x.responseDTO()
 	if err != nil {
 		return err
 	}
@@ -132,17 +132,17 @@ func (x *AccountSignupController) validateFields() {
 
 	{
 		if dto.IsStepID() {
-			dto.RemoveModelError("secret_code")
-			dto.RemoveModelError("password")
+			dto.RemoveError("secret_code")
+			dto.RemoveError("password")
 		}
 
 		if dto.IsStepSecretCode() {
-			// dto.RemoveModelError("secret_code")
-			dto.RemoveModelError("password")
+			// dto.RemoveError("secret_code")
+			dto.RemoveError("password")
 		}
 
 		if dto.IsStepPassword() {
-			dto.RemoveModelError("secret_code")
+			dto.RemoveError("secret_code")
 		}
 	}
 }
@@ -170,7 +170,7 @@ func (x *SignupDTO) IsStepPassword() bool {
 	return x.StepName == "password"
 }
 
-func (x *AccountSignupController) createDto() error {
+func (x *AccountSignupController) createDTO() error {
 
 	x.dto = &SignupDTO{}
 
@@ -197,7 +197,7 @@ func (x *AccountSignupController) createDto() error {
 	return nil
 }
 
-func (x *AccountSignupController) handleDto() error {
+func (x *AccountSignupController) handleDTO() error {
 
 	dto := x.dto
 
@@ -207,7 +207,7 @@ func (x *AccountSignupController) handleDto() error {
 	accountService := x.appService.AccountService()
 	if x.IsPOST {
 
-		toolratelimit.RateLimitHuman()
+		utilratelimit.RateLimitHuman()
 
 		var user *service.UserAccount
 		var err error
@@ -232,7 +232,7 @@ func (x *AccountSignupController) handleDto() error {
 			if user == nil {
 				userCanSignup = true // no user with this Email
 			} else {
-				dto.AddModelError("", userLang.Lang("The user already exists. Please use the sign-in page." /*Lang*/))
+				dto.AddError("", userLang.Lang("The user already exists. Please use the sign-in page." /*Lang*/))
 			}
 
 		}
@@ -336,7 +336,7 @@ func (x *AccountSignupController) handleDto() error {
 
 		if sendSms {
 
-			toolratelimit.RateLimitMessage()
+			utilratelimit.RateLimitMessage()
 
 			secretCode, err := accountService.GeneratePasscodeConfirmEmail(Email, user)
 
@@ -355,7 +355,7 @@ func (x *AccountSignupController) handleDto() error {
 
 	return nil
 }
-func (x *AccountSignupController) responseDtoAsAPI() (err error) {
+func (x *AccountSignupController) responseDTOAsAPI() (err error) {
 
 	dto := x.dto
 
@@ -366,7 +366,7 @@ func (x *AccountSignupController) responseDtoAsAPI() (err error) {
 
 }
 
-func (x *AccountSignupController) responseDtoAsMvc() (err error) {
+func (x *AccountSignupController) responseDTOAsMvc() (err error) {
 
 	dto := x.dto
 	appConfig := x.appConfig
@@ -388,11 +388,11 @@ func (x *AccountSignupController) responseDtoAsMvc() (err error) {
 
 	return nil
 }
-func (x *AccountSignupController) responseDto() (err error) {
+func (x *AccountSignupController) responseDTO() (err error) {
 
 	if x.isAPIMode {
-		return x.responseDtoAsAPI()
+		return x.responseDTOAsAPI()
 	} else {
-		return x.responseDtoAsMvc()
+		return x.responseDTOAsMvc()
 	}
 }

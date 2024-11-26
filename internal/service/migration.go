@@ -1,5 +1,7 @@
 package service
 
+import xlog "go-auth/internal/util/utillog"
+
 func mustCreateRepository(appService AppService) {
 
 	db := appService.Repository() // not full inited
@@ -33,7 +35,11 @@ func mustInitRepositoryMasterData(appService AppService) {
 			if err != nil {
 				panic(err)
 			}
-			db.Create(key)
+			res := db.Create(key)
+
+			if res.Error != nil {
+				xlog.Panic("New vault key: %v", res.Error)
+			}
 		}
 	}
 

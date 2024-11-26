@@ -5,7 +5,7 @@ import (
 	"go-auth/internal/config"
 
 	"go-auth/internal/config/consts"
-	xlog "go-auth/internal/tool/toollog"
+	xlog "go-auth/internal/util/utillog"
 )
 
 //nolint:gochecknoglobals

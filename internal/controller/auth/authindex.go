@@ -31,17 +31,17 @@ type IndexController struct {
 
 func (x *IndexController) Handler() error {
 
-	err := x.createDto()
+	err := x.createDTO()
 	if err != nil {
 		return err
 	}
 
-	err = x.handleDto()
+	err = x.handleDTO()
 	if err != nil {
 		return err
 	}
 
-	err = x.responseDto()
+	err = x.responseDTO()
 	if err != nil {
 		return err
 	}
@@ -79,15 +79,15 @@ type AuthIndexDTO struct {
 		IsAuthSignup bool   `json:"is_auth_signup,omitempty"`
 		IsAuthForgot bool   `json:"is_auth_forgot,omitempty"`
 	}
-	Title    string
-	LangData map[string]string
+	Title     string
+	LangWords map[string]string
 }
 
 func (x *IndexController) validateFields() {
 
 }
 
-func (x *IndexController) createDto() error {
+func (x *IndexController) createDTO() error {
 
 	x.dto = &AuthIndexDTO{}
 	//
@@ -106,7 +106,7 @@ func (x *IndexController) createDto() error {
 	return nil
 }
 
-func (x *IndexController) handleDto() error {
+func (x *IndexController) handleDTO() error {
 
 	dto := x.dto
 	// c := x.webCtxt
@@ -115,25 +115,25 @@ func (x *IndexController) handleDto() error {
 	dto.LangCode = userLang.LangCode()
 	dto.Title = userLang.Lang("Authentication") // TODO /*Lang*/
 
-	cnf := &dto.AppConfig
+	cfg := &dto.AppConfig
 
-	cnf.AppTitle = x.appConfig.Title
-	cnf.TmTitle = fmt.Sprintf("© %v %s", time.Now().Year(), x.appConfig.Title)
-	cnf.IsAuthPhone = x.appConfig.Identity.IsAuthPhone
-	cnf.IsAuthEmail = x.appConfig.Identity.IsAuthEmail
-	cnf.IsAuthSignup = x.appConfig.Identity.IsAuthSignup
-	cnf.IsAuthForgot = x.appConfig.Identity.IsAuthForgot
+	cfg.AppTitle = x.appConfig.Title
+	cfg.TmTitle = fmt.Sprintf("© %v %s", time.Now().Year(), x.appConfig.Title)
+	cfg.IsAuthPhone = x.appConfig.Identity.IsAuthPhone
+	cfg.IsAuthEmail = x.appConfig.Identity.IsAuthEmail
+	cfg.IsAuthSignup = x.appConfig.Identity.IsAuthSignup
+	cfg.IsAuthForgot = x.appConfig.Identity.IsAuthForgot
 
-	dto.LangData = userLang.LangData()
+	dto.LangWords = userLang.LangWords()
 	return nil
 }
 
-func (x *IndexController) responseDtoAsAPI() (err error) {
+func (x *IndexController) responseDTOAsAPI() (err error) {
 
 	return nil
 }
 
-func (x *IndexController) responseDtoAsMvc() (err error) {
+func (x *IndexController) responseDTOAsMvc() (err error) {
 
 	dto := x.dto
 	appConfig := x.appConfig
@@ -153,10 +153,10 @@ func (x *IndexController) responseDtoAsMvc() (err error) {
 
 	return nil
 }
-func (x *IndexController) responseDto() (err error) {
+func (x *IndexController) responseDTO() (err error) {
 	if x.isAPIMode {
-		return x.responseDtoAsAPI()
+		return x.responseDTOAsAPI()
 	} else {
-		return x.responseDtoAsMvc()
+		return x.responseDTOAsMvc()
 	}
 }

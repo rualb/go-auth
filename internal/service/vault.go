@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"go-auth/internal/config"
-	"go-auth/internal/tool/toolcrypto"
+	"go-auth/internal/util/utilcrypto"
 	"time"
 
 	"github.com/google/uuid"
@@ -32,13 +32,13 @@ func (x *VaultKey) fill() (err error) {
 
 	x.ID = uuid.New().String()
 	x.CreatedAt = time.Now().UTC()
-	if x.AuthKey, err = toolcrypto.RandomCryptoBase64(secretKeySize); err != nil {
+	if x.AuthKey, err = utilcrypto.RandomCryptoBase64(secretKeySize); err != nil {
 		return fmt.Errorf("error on RandomCryptoArray: %v", err)
 	}
-	if x.OtpKey, err = toolcrypto.RandomCryptoBase64(secretKeySize); err != nil {
+	if x.OtpKey, err = utilcrypto.RandomCryptoBase64(secretKeySize); err != nil {
 		return fmt.Errorf("error on RandomCryptoArray: %v", err)
 	}
-	if x.HashKey, err = toolcrypto.RandomCryptoBase64(secretKeySize); err != nil {
+	if x.HashKey, err = utilcrypto.RandomCryptoBase64(secretKeySize); err != nil {
 		return fmt.Errorf("error on RandomCryptoArray: %v", err)
 	}
 	return nil

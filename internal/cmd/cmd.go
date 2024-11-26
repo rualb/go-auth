@@ -11,7 +11,7 @@ import (
 	"os/signal"
 	"time"
 
-	xlog "go-auth/internal/tool/toollog"
+	xlog "go-auth/internal/util/utillog"
 
 	"go-auth/internal/router"
 	webfs "go-auth/web"

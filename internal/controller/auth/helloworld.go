@@ -31,18 +31,18 @@ type HelloWorldController struct {
 
 func (x *HelloWorldController) Handler() error {
 
-	err := x.createDto()
+	err := x.createDTO()
 	if err != nil {
 		return err
 	}
 
 	//
-	err = x.handleDto()
+	err = x.handleDTO()
 	if err != nil {
 		return err
 	}
 
-	return x.responseDto()
+	return x.responseDTO()
 
 }
 
@@ -72,7 +72,7 @@ func (x *HelloWorldController) validateFields() {
 
 }
 
-func (x *HelloWorldController) createDto() error {
+func (x *HelloWorldController) createDTO() error {
 
 	x.dto = &HelloWorldDTO{}
 	//
@@ -94,23 +94,23 @@ func (x *HelloWorldController) createDto() error {
 	return nil
 }
 
-func (x *HelloWorldController) handleDto() error {
+func (x *HelloWorldController) handleDTO() error {
 
 	dto := x.dto
 
 	userLang := x.userLang
 
-	dto.AddModelError("", userLang.Lang("HelloWorld" /*Lang*/))
+	dto.AddError("", userLang.Lang("HelloWorld" /*Lang*/))
 	dto.NowStr = time.Now().Truncate(time.Second).Format(time.RFC3339)
 
 	return nil
 }
-func (x *HelloWorldController) responseDtoAsAPI() (err error) {
+func (x *HelloWorldController) responseDTOAsAPI() (err error) {
 
 	return nil
 }
 
-func (x *HelloWorldController) responseDtoAsMvc() (err error) {
+func (x *HelloWorldController) responseDTOAsMvc() (err error) {
 
 	dto := x.dto
 	appConfig := x.appConfig
@@ -128,11 +128,11 @@ func (x *HelloWorldController) responseDtoAsMvc() (err error) {
 
 	return nil
 }
-func (x *HelloWorldController) responseDto() (err error) {
+func (x *HelloWorldController) responseDTO() (err error) {
 
 	if x.isAPIMode {
-		return x.responseDtoAsAPI()
+		return x.responseDTOAsAPI()
 	} else {
-		return x.responseDtoAsMvc()
+		return x.responseDTOAsMvc()
 	}
 }

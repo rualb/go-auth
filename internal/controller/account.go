@@ -64,7 +64,7 @@ package controller
 
 // 	dtoModel := &dto.UserLoginDTO{}
 
-// 	if err := c.Bind(dtoModel); err != nil {
+// 	if err := c.Bind(&dtoModel); err != nil {
 // 		return err
 // 	}
 
@@ -75,7 +75,7 @@ package controller
 
 // func (controller *accountController) Signin(c echo.Context) error {
 // 	obj := dto.NewUserLoginDTO()
-// 	if err := c.Bind(obj); err != nil {
+// 	if err := c.Bind(&obj); err != nil {
 // 		return c.JSON(http.StatusBadRequest, obj)
 // 	}
 

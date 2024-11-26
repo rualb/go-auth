@@ -5,8 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"go-auth/internal/config/consts"
-	"go-auth/internal/tool/toolconfig"
-	xlog "go-auth/internal/tool/toollog"
+	"go-auth/internal/util/utilconfig"
+	xlog "go-auth/internal/util/utillog"
 	"os"
 	"slices"
 	"strconv"
@@ -226,10 +226,8 @@ type AppConfigLang struct {
 }
 
 type AppConfigAssets struct {
-	AssetsGlobalVersion   string `json:"global_version"`
-	AssetsPublicURLOrigin string `json:"public_url_origin"`
-	AssetsPathIndexCSS    string `json:"path_index_css"`
-	AssetsPathIndexJs     string `json:"path_index_js"`
+	GlobalVersion   string
+	AssetsPublicURL string
 }
 type AppConfigMod struct {
 	Name  string `json:"-"`
@@ -346,10 +344,8 @@ func NewAppConfig() *AppConfig {
 		},
 
 		Assets: AppConfigAssets{
-			AssetsGlobalVersion:   "v1",
-			AssetsPublicURLOrigin: "",
-			AssetsPathIndexCSS:    "/auth/assets/index.css",
-			AssetsPathIndexJs:     "/auth/assets/index.js",
+			GlobalVersion:   "v1",
+			AssetsPublicURL: "",
 		},
 
 		HTTPTransport: AppConfigHTTPTransport{},
@@ -420,7 +416,7 @@ func (x *AppConfig) readEnvVar() error {
 	reader.Bool(&x.Identity.IsAuthEmail, "identity_is_auth_email", nil)
 
 	// Assets configuration
-	reader.String(&x.Assets.AssetsGlobalVersion, "assets_global_version", nil)
+	reader.String(&x.Assets.GlobalVersion, "global_version", nil)
 
 	// Database configuration
 
@@ -518,7 +514,7 @@ func (x *AppConfigSource) Load() error {
 
 			xlog.Info("Loading config from: %v", dir)
 
-			err := toolconfig.LoadConfig(res /*pointer*/, dir, fileName)
+			err := utilconfig.LoadConfig(res /*pointer*/, dir, fileName)
 
 			if err != nil {
 				return err

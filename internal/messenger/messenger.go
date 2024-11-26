@@ -2,8 +2,8 @@ package messenger
 
 import (
 	"go-auth/internal/config"
-	"go-auth/internal/tool/toolhttp"
-	xlog "go-auth/internal/tool/toollog"
+	"go-auth/internal/util/utilhttp"
+	xlog "go-auth/internal/util/utillog"
 	"strings"
 )
 
@@ -54,7 +54,7 @@ func NewAppMessenger(config *config.AppConfig,
 // 		x.logger.ZapLogger().Debugw("SendSms", "type", "sms", "phone_number", phoneNumber, "text", text)
 // 	}
 
-// 	_, err := toolhttp.Post(x.config.PhoneNumberURL, data, nil)
+// 	_, err := utilhttp.Post(x.config.PhoneNumberURL, data, nil)
 
 // 	if err != nil {
 // 		x.logger.ZapLogger().Errorf("Error from sms service: %v", err)
@@ -76,7 +76,7 @@ func (x *defaultAppMessenger) SendSecretCodeToPhoneNumber(secretCode string, pho
 
 	URL := strings.ReplaceAll(x.config.ServiceURL, "{code}", serviceCode)
 
-	_, err := toolhttp.PostFormURL(URL, nil, formValues, nil)
+	_, err := utilhttp.PostFormURL(URL, nil, formValues, nil)
 
 	if err != nil {
 		xlog.Error("Error from sms service: %v", err)
@@ -100,7 +100,7 @@ func (x *defaultAppMessenger) SendSecretCodeToEmail(secretCode string, email str
 
 	URL := strings.ReplaceAll(x.config.ServiceURL, "{code}", serviceCode)
 
-	_, err := toolhttp.PostFormURL(URL, nil, formValues, nil)
+	_, err := utilhttp.PostFormURL(URL, nil, formValues, nil)
 
 	if err != nil {
 		xlog.Error("Error from sms service: %v", err)

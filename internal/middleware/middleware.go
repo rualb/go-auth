@@ -6,7 +6,7 @@ import (
 	xweb "go-auth/internal/web"
 	"io/fs"
 
-	xlog "go-auth/internal/tool/toollog"
+	xlog "go-auth/internal/util/utillog"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"

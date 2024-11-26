@@ -29,17 +29,17 @@ type AccessDeniedController struct {
 
 func (x *AccessDeniedController) Handler() error {
 
-	err := x.createDto()
+	err := x.createDTO()
 	if err != nil {
 		return err
 	}
 
-	err = x.handleDto()
+	err = x.handleDTO()
 	if err != nil {
 		return err
 	}
 
-	err = x.responseDto()
+	err = x.responseDTO()
 	if err != nil {
 		return err
 	}
@@ -74,7 +74,7 @@ func (x *AccessDeniedController) validateFields() {
 
 }
 
-func (x *AccessDeniedController) createDto() error {
+func (x *AccessDeniedController) createDTO() error {
 
 	x.dto = &AccessDeniedDTO{}
 	//
@@ -95,12 +95,12 @@ func (x *AccessDeniedController) createDto() error {
 	return nil
 }
 
-func (x *AccessDeniedController) handleDto() error {
+func (x *AccessDeniedController) handleDTO() error {
 
 	return nil
 }
 
-func (x *AccessDeniedController) responseDtoAsAPI() (err error) {
+func (x *AccessDeniedController) responseDTOAsAPI() (err error) {
 
 	dto := x.dto
 
@@ -111,7 +111,7 @@ func (x *AccessDeniedController) responseDtoAsAPI() (err error) {
 
 }
 
-func (x *AccessDeniedController) responseDtoAsMvc() (err error) {
+func (x *AccessDeniedController) responseDTOAsMvc() (err error) {
 
 	dto := x.dto
 	appConfig := x.appConfig
@@ -130,10 +130,10 @@ func (x *AccessDeniedController) responseDtoAsMvc() (err error) {
 	return nil
 }
 
-func (x *AccessDeniedController) responseDto() (err error) {
+func (x *AccessDeniedController) responseDTO() (err error) {
 	if x.isAPIMode {
-		return x.responseDtoAsAPI()
+		return x.responseDTOAsAPI()
 	} else {
-		return x.responseDtoAsMvc()
+		return x.responseDTOAsMvc()
 	}
 }

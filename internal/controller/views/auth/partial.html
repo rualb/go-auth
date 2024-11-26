@@ -1,9 +1,9 @@
 {{define "model_errors"}}
 
-{{ if .ModelErrors }}
+{{ if .Errors }}
 <div class="text-danger e-summary-errors" role="alert">
     <ul>
-        {{ range .ModelErrors }}
+        {{ range .Errors }}
         <li>{{ .Message }}</li>
         {{ end }}
     </ul>

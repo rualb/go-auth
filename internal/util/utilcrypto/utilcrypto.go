@@ -1,4 +1,4 @@
-package toolcrypto
+package utilcrypto
 
 import (
 	"crypto/rand"

@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ call .API.Lang .Prm.Title }}</title>
     <link rel="stylesheet"
-        href="{{ .Prm.AppConfig.AssetsPublicURLOrigin }}{{ .Prm.AppConfig.AssetsPathIndexCss }}?_c={{ .Prm.AppConfig.AssetsGlobalVersion }}"
+        href="{{ .Prm.AppConfig.AssetsPublicURL }}{{ .Prm.AppConfig.AssetsPathIndexCss }}?_c={{ .Prm.AppConfig.GlobalVersion }}"
         crossorigin="anonymous" />
     <script>
         (function () {
@@ -57,7 +57,7 @@
         </div>
     </footer>
     <script
-        src="{{ .Prm.AppConfig.AssetsPublicURLOrigin }}{{ .Prm.AppConfig.AssetsPathIndexJs }}?_c={{ .Prm.AppConfig.AssetsGlobalVersion }}"
+        src="{{ .Prm.AppConfig.AssetsPublicURL }}{{ .Prm.AppConfig.AssetsPathIndexJs }}?_c={{ .Prm.AppConfig.GlobalVersion }}"
         crossorigin="anonymous"></script>
     <script data-app-config type="application/json">
         {{ .Prm.RawJSONData }}

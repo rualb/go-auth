@@ -31,7 +31,7 @@ type AccountSignoutController struct {
 func (x *AccountSignoutController) Signout() error {
 	// TODO sign out force
 
-	err := x.createDto()
+	err := x.createDTO()
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func (x *AccountSignoutController) Signout() error {
 
 	}
 
-	err = x.responseDto()
+	err = x.responseDTO()
 	if err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func (x *AccountSignoutController) Signout() error {
 	// in any case redirect (or home hage)
 
 }
-func (x *AccountSignoutController) responseDtoAsAPI() (err error) {
+func (x *AccountSignoutController) responseDTOAsAPI() (err error) {
 
 	dto := x.dto
 
@@ -73,7 +73,7 @@ func (x *AccountSignoutController) responseDtoAsAPI() (err error) {
 
 }
 
-func (x *AccountSignoutController) responseDtoAsMvc() (err error) {
+func (x *AccountSignoutController) responseDTOAsMvc() (err error) {
 
 	dto := x.dto
 	appConfig := x.appConfig
@@ -91,11 +91,11 @@ func (x *AccountSignoutController) responseDtoAsMvc() (err error) {
 
 	return nil
 }
-func (x *AccountSignoutController) responseDto() (err error) {
+func (x *AccountSignoutController) responseDTO() (err error) {
 	if x.isAPIMode {
-		return x.responseDtoAsAPI()
+		return x.responseDTOAsAPI()
 	} else {
-		return x.responseDtoAsMvc()
+		return x.responseDTOAsMvc()
 	}
 }
 
@@ -139,7 +139,7 @@ func (x *AccountSignoutController) validateFields() {
 
 }
 
-func (x *AccountSignoutController) createDto() error {
+func (x *AccountSignoutController) createDTO() error {
 
 	x.dto = &SignoutDTO{}
 	//

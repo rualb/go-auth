@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"go-auth/internal/config"
 	"go-auth/internal/config/consts"
-	"go-auth/internal/tool/toolstring"
+	utilstring "go-auth/internal/util/utilstring"
 	xweb "go-auth/internal/web"
 	"html/template"
 	"io"
@@ -24,12 +24,10 @@ type templateRenderer struct {
 }
 
 type ModelAppConfig struct {
-	AppTitle              string
-	CopyrightTitle        string
-	AssetsGlobalVersion   string
-	AssetsPublicURLOrigin string
-	AssetsPathIndexCSS    string
-	AssetsPathIndexJs     string
+	AppTitle        string
+	CopyrightTitle  string
+	GlobalVersion   string
+	AssetsPublicURL string
 }
 
 type ModelConst struct {
@@ -73,7 +71,7 @@ func NewModelWrap(c echo.Context, model any, isFragment bool, title string, appC
 		API: ModelAPI{
 			Icon:            AppIcons,
 			Lang:            lang.Lang,
-			URL:             toolstring.LocalURL,
+			URL:             utilstring.LocalURL,
 			IsAuthenticated: xweb.IsSignedIn(c),
 		},
 		Prm: ModelPrm{
@@ -87,12 +85,10 @@ func NewModelWrap(c echo.Context, model any, isFragment bool, title string, appC
 			LangCode: lang.LangCode(),
 
 			AppConfig: ModelAppConfig{
-				AppTitle:              appConfig.Title,
-				CopyrightTitle:        fmt.Sprintf("© %v %v", time.Now().UTC().Year(), appConfig.Title),
-				AssetsGlobalVersion:   appConfig.Assets.AssetsGlobalVersion,
-				AssetsPublicURLOrigin: appConfig.Assets.AssetsPublicURLOrigin,
-				AssetsPathIndexCSS:    appConfig.Assets.AssetsPathIndexCSS,
-				AssetsPathIndexJs:     appConfig.Assets.AssetsPathIndexJs,
+				AppTitle:        appConfig.Title,
+				CopyrightTitle:  fmt.Sprintf("© %v %v", time.Now().UTC().Year(), appConfig.Title),
+				GlobalVersion:   appConfig.Assets.GlobalVersion,
+				AssetsPublicURL: appConfig.Assets.AssetsPublicURL,
 			},
 			AppConst: ModelConst{
 				SecretCodeLength:     consts.SecretCodeLength,
@@ -105,10 +101,10 @@ func NewModelWrap(c echo.Context, model any, isFragment bool, title string, appC
 	}
 
 	data, err := json.Marshal(map[string]any{
-		"test":                     `"<>`,
-		"PrmLangCode":              res.Prm.LangCode,
-		"PrmAssetsPublicURLOrigin": res.Prm.AppConfig.AssetsPublicURLOrigin,
-		"PrmAssetsGlobalVersion":   res.Prm.AppConfig.AssetsGlobalVersion,
+		"test":                  `"<>`,
+		"prm_lang_code":         res.Prm.LangCode,
+		"prm_assets_public_url": res.Prm.AppConfig.AssetsPublicURL,
+		"prm_global_version":    res.Prm.AppConfig.GlobalVersion,
 	})
 
 	if err != nil {

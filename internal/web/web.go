@@ -11,7 +11,7 @@ import (
 	"go-auth/internal/config/consts"
 	"go-auth/internal/service"
 	xtoken "go-auth/internal/token"
-	"go-auth/internal/tool/toolstring"
+	"go-auth/internal/util/utilstring"
 	"net/http"
 	"strings"
 	"time"
@@ -183,7 +183,7 @@ func AuthorizeMiddleware(appService service.AppService, reddirect bool) echo.Mid
 
 				if reddirect {
 					reqURI := c.Request().RequestURI // "/dashboard?view=weekly"
-					redirectURL := toolstring.LocalURL(consts.PathAuthSignin, "return_url", reqURI)
+					redirectURL := utilstring.LocalURL(consts.PathAuthSignin, "return_url", reqURI)
 					return c.Redirect(http.StatusFound /*302*/, redirectURL)
 				} else {
 					return c.NoContent(http.StatusUnauthorized) // 401

@@ -3,9 +3,10 @@ package service
 import (
 	"fmt"
 	xtoken "go-auth/internal/token"
-	"go-auth/internal/tool/toolcrypto"
-	"go-auth/internal/tool/toolstring"
+	"go-auth/internal/util/utilcrypto"
+	utilstring "go-auth/internal/util/utilstring"
 	"strings"
+
 	"time"
 
 	"github.com/google/uuid"
@@ -34,23 +35,23 @@ type UserAccount struct {
 	// SecurityStamp   string // Key := Base32(Random(32))  HMACSHA1(Key)  Key == VTOQQ2PQKD7A2KTSXU7OFLKUNI7QEZRJ
 	PasswordHash string
 	CreatedAt    time.Time
-	Role         string
+	Roles        string
 }
 
 func (x *UserAccount) SetUsername(value string) {
-	valueNorm := toolstring.NormalizeText(value)
+	valueNorm := utilstring.NormalizeText(value)
 	x.Username = valueNorm
 }
 
 func (x *UserAccount) SetPhoneNumber(value string) {
-	valueNorm := toolstring.NormalizePhoneNumber(value)
+	valueNorm := utilstring.NormalizePhoneNumber(value)
 	x.PhoneNumber = valueNorm
 
 	// x.Username = valueNorm
 }
 
 func (x *UserAccount) SetEmail(value string) {
-	valueNorm := toolstring.NormalizeEmail(value)
+	valueNorm := utilstring.NormalizeEmail(value)
 
 	x.Email = value
 	x.NormalizedEmail = valueNorm
@@ -60,7 +61,7 @@ func (x *UserAccount) SetEmail(value string) {
 
 func (x *UserAccount) SetPassword(pw string) error {
 
-	hash, err := toolcrypto.HashPassword(pw) // bcrypt inside
+	hash, err := utilcrypto.HashPassword(pw) // bcrypt inside
 
 	if err != nil {
 		return err
@@ -74,12 +75,12 @@ func (x *UserAccount) SetPassword(pw string) error {
 }
 func (x *UserAccount) CompareHashAndPassword(str string) bool {
 
-	return toolcrypto.CompareHashAndPassword(x.PasswordHash, str)
+	return utilcrypto.CompareHashAndPassword(x.PasswordHash, str)
 
 }
 
 // func (x *UserAccount) RefreshSecurityStamp() error {
-// 	stamp, e := toolcrypto.RandomCryptoBase32(SecurityStampLenDefault)
+// 	stamp, e := utilcrypto.RandomCryptoBase32(SecurityStampLenDefault)
 
 // 	if e != nil {
 // 		return e
@@ -161,7 +162,7 @@ func (x *defaultAccountService) GenerateTokenConfirmPhoneNumber(phoneNumber stri
 	if phoneNumber == "" {
 		return "", fmt.Errorf("error: phone number is empty")
 	}
-	if !toolstring.IsPhoneNumberFull(phoneNumber) {
+	if !utilstring.IsPhoneNumberFull(phoneNumber) {
 		return "", fmt.Errorf("error: not a valid phone number: %v", phoneNumber)
 	}
 
@@ -187,7 +188,7 @@ func (x *defaultAccountService) ValidateTokenConfirmPhoneNumber(secretToken stri
 	if phoneNumber == "" {
 		return false, fmt.Errorf("error: phone number is empty")
 	}
-	if !toolstring.IsPhoneNumberFull(phoneNumber) {
+	if !utilstring.IsPhoneNumberFull(phoneNumber) {
 		return false, fmt.Errorf("error: not a valid phone number: %v", phoneNumber)
 	}
 	// // // // //
@@ -219,7 +220,7 @@ func (x *defaultAccountService) ValidatePasscodeConfirmPhoneNumber(passcode stri
 	if phoneNumber == "" {
 		return false, fmt.Errorf("error: phone number is empty")
 	}
-	if !toolstring.IsPhoneNumberFull(phoneNumber) {
+	if !utilstring.IsPhoneNumberFull(phoneNumber) {
 		return false, fmt.Errorf("error: not a valid phone number: %v", phoneNumber)
 	}
 	vaultKeyScopeOtp := x.appService.Vault().KeyScopeOtp()
@@ -248,7 +249,7 @@ func (x *defaultAccountService) GeneratePasscodeConfirmPhoneNumber(phoneNumber s
 	if phoneNumber == "" {
 		return "", fmt.Errorf("error: phone number is empty")
 	}
-	if !toolstring.IsPhoneNumberFull(phoneNumber) {
+	if !utilstring.IsPhoneNumberFull(phoneNumber) {
 		return "", fmt.Errorf("error: not a valid phone number: %v", phoneNumber)
 	}
 
@@ -278,7 +279,7 @@ func (x *defaultAccountService) GenerateTokenConfirmEmail(email string, userAcco
 	if email == "" {
 		return "", fmt.Errorf("error: email is empty")
 	}
-	if !toolstring.IsEmail(email) {
+	if !utilstring.IsEmail(email) {
 		return "", fmt.Errorf("error: not a valid email: %v", email)
 	}
 
@@ -305,7 +306,7 @@ func (x *defaultAccountService) ValidateTokenConfirmEmail(secretToken string, em
 	if email == "" {
 		return false, fmt.Errorf("error: email is empty")
 	}
-	if !toolstring.IsEmail(email) {
+	if !utilstring.IsEmail(email) {
 		return false, fmt.Errorf("error: not a valid email: %v", email)
 	}
 
@@ -336,7 +337,7 @@ func (x *defaultAccountService) ValidatePasscodeConfirmEmail(passcode string, em
 	if email == "" {
 		return false, fmt.Errorf("error: email is empty")
 	}
-	if !toolstring.IsEmail(email) {
+	if !utilstring.IsEmail(email) {
 		return false, fmt.Errorf("error: not a valid email: %v", email)
 	}
 
@@ -366,7 +367,7 @@ func (x *defaultAccountService) GeneratePasscodeConfirmEmail(email string, userA
 	if email == "" {
 		return "", fmt.Errorf("error: email is empty")
 	}
-	if !toolstring.IsEmail(email) {
+	if !utilstring.IsEmail(email) {
 		return "", fmt.Errorf("error: not a valid email: %v", email)
 	}
 
@@ -473,7 +474,7 @@ func (x defaultAccountService) FindByUsername(username string) (*UserAccount, er
 		return nil, nil
 	}
 
-	username = toolstring.NormalizeText(username)
+	username = utilstring.NormalizeText(username)
 
 	user := new(UserAccount)
 
@@ -490,7 +491,7 @@ func (x defaultAccountService) FindByPhoneNumber(phoneNumber string) (*UserAccou
 		return nil, nil
 	}
 
-	if !toolstring.IsPhoneNumberFull(phoneNumber) {
+	if !utilstring.IsPhoneNumberFull(phoneNumber) {
 		return nil, nil
 	}
 
@@ -510,11 +511,11 @@ func (x defaultAccountService) FindByNormalizedEmail(email string) (*UserAccount
 		return nil, nil
 	}
 
-	if !toolstring.IsEmail(email) {
+	if !utilstring.IsEmail(email) {
 		return nil, nil
 	}
 
-	normalizedEmail := toolstring.NormalizeEmail(email)
+	normalizedEmail := utilstring.NormalizeEmail(email)
 
 	user := new(UserAccount)
 

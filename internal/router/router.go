@@ -20,7 +20,7 @@ import (
 	xweb "go-auth/internal/web"
 	webfs "go-auth/web"
 
-	xlog "go-auth/internal/tool/toollog"
+	xlog "go-auth/internal/util/utillog"
 
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -362,13 +362,23 @@ func initAuthController(e *echo.Echo, appService service.AppService) {
 
 	}
 	{
-		// Info
-		handler := func(c echo.Context, isAPIMode bool) error {
-			ctrl := auth.NewAccountInfoController(appService, c, isAPIMode)
-			return ctrl.Info()
+		// Config
+		handler := func(c echo.Context) error {
+			ctrl := auth.NewConfigAPIController(appService, c)
+			return ctrl.Handler()
 		}
 
-		e.GET(consts.PathAuthStatusAPI, func(c echo.Context) error { return handler(c, true) },
+		e.GET(consts.PathAuthConfigAPI, func(c echo.Context) error { return handler(c) })
+
+	}
+	{
+		// Status
+		handler := func(c echo.Context) error {
+			ctrl := auth.NewStatusAPIController(appService, c)
+			return ctrl.Handler()
+		}
+
+		e.GET(consts.PathAuthStatusAPI, func(c echo.Context) error { return handler(c) },
 			xweb.TokenRotateMiddleware(appService), /*rotate auth token*/
 		)
 

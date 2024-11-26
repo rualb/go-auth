@@ -4,12 +4,12 @@ import (
 	"go-auth/internal/config"
 	"go-auth/internal/config/consts"
 	controller "go-auth/internal/controller"
+	"go-auth/internal/util/utilratelimit"
 	"strings"
 
 	"go-auth/internal/i18n"
 	"go-auth/internal/mvc"
 	"go-auth/internal/service"
-	"go-auth/internal/tool/toolratelimit"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -33,17 +33,17 @@ type AccountSigninController struct {
 
 func (x *AccountSigninController) Handler() error {
 
-	err := x.createDto()
+	err := x.createDTO()
 	if err != nil {
 		return err
 	}
 
-	err = x.handleDto()
+	err = x.handleDTO()
 	if err != nil {
 		return err
 	}
 
-	err = x.responseDto()
+	err = x.responseDTO()
 	if err != nil {
 		return err
 	}
@@ -116,7 +116,7 @@ func (x *AccountSigninController) validateFields() {
 
 }
 
-func (x *AccountSigninController) createDto() error {
+func (x *AccountSigninController) createDTO() error {
 
 	x.dto = &SigninDTO{}
 	//
@@ -144,7 +144,7 @@ func (x *AccountSigninController) createDto() error {
 	return nil
 }
 
-func (x *AccountSigninController) handleDto() error {
+func (x *AccountSigninController) handleDTO() error {
 
 	dto := x.dto
 	userLang := x.userLang
@@ -156,7 +156,7 @@ func (x *AccountSigninController) handleDto() error {
 
 	if x.IsPOST {
 
-		toolratelimit.RateLimitHuman()
+		utilratelimit.RateLimitHuman()
 
 		var user *service.UserAccount
 		var err error
@@ -177,13 +177,13 @@ func (x *AccountSigninController) handleDto() error {
 			}
 
 			if user == nil {
-				dto.AddModelError("", userLang.Lang("No user found." /*Lang*/))
+				dto.AddError("", userLang.Lang("No user found." /*Lang*/))
 			} else {
 				userExists = true
 				userCanSignIn = signInService.CanSignIn(user) // no user with this Email
 
 				if !userCanSignIn {
-					dto.AddModelError("", userLang.Lang("User account locked out." /*Lang*/))
+					dto.AddError("", userLang.Lang("User account locked out." /*Lang*/))
 				}
 			}
 
@@ -210,7 +210,7 @@ func (x *AccountSigninController) handleDto() error {
 				dto.StatusMessage = userLang.Lang("You have successfully signed in." /*Lang*/)
 
 			} else {
-				dto.AddModelError("", userLang.Lang("Invalid sign in attempt." /*Lang*/))
+				dto.AddError("", userLang.Lang("Invalid sign in attempt." /*Lang*/))
 
 			}
 
@@ -220,7 +220,7 @@ func (x *AccountSigninController) handleDto() error {
 
 	return nil
 }
-func (x *AccountSigninController) responseDtoAsAPI() (err error) {
+func (x *AccountSigninController) responseDTOAsAPI() (err error) {
 
 	dto := x.dto
 
@@ -231,7 +231,7 @@ func (x *AccountSigninController) responseDtoAsAPI() (err error) {
 
 }
 
-func (x *AccountSigninController) responseDtoAsMvc() (err error) {
+func (x *AccountSigninController) responseDTOAsMvc() (err error) {
 
 	dto := x.dto
 	appConfig := x.appConfig
@@ -249,10 +249,10 @@ func (x *AccountSigninController) responseDtoAsMvc() (err error) {
 
 	return nil
 }
-func (x *AccountSigninController) responseDto() (err error) {
+func (x *AccountSigninController) responseDTO() (err error) {
 	if x.isAPIMode {
-		return x.responseDtoAsAPI()
+		return x.responseDTOAsAPI()
 	} else {
-		return x.responseDtoAsMvc()
+		return x.responseDTOAsMvc()
 	}
 }

@@ -1,4 +1,4 @@
-package toolratelimit
+package utilratelimit
 
 func RateLimitHuman() {
 	// dummy just for marking

@@ -6,8 +6,8 @@ type UserLang interface {
 	LangCode() string
 }
 
-// ModelMessage represents a message related to validation or other errors.
-type ModelMessage struct {
+// ErrorMessage represents a message related to validation or other errors.
+type ErrorMessage struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 }

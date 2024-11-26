@@ -3,8 +3,6 @@ package controller
 import (
 	"go-auth/internal/service"
 	"net/http"
-	"strconv"
-	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -22,18 +20,6 @@ func NewPingController(_ service.AppService) PingController {
 
 func (controller *pingController) Ping(c echo.Context) error {
 	res := "pong"
-
-	if name := c.QueryParam("name"); name != "" {
-		res = res + " " + name
-	}
-
-	if length := c.QueryParam("length"); length != "" {
-
-		lengthI, _ := strconv.Atoi(length)
-		lengthI = min(max(lengthI, 0), 32000)
-
-		res = res + " " + strings.Repeat("A", lengthI)
-	}
 
 	return c.String(http.StatusOK, res)
 }

@@ -4,12 +4,12 @@ import (
 	"go-auth/internal/config"
 	"go-auth/internal/config/consts"
 	controller "go-auth/internal/controller"
+	"go-auth/internal/util/utilratelimit"
+	"go-auth/internal/util/utilstring"
 
 	"go-auth/internal/i18n"
 	"go-auth/internal/mvc"
 	"go-auth/internal/service"
-	"go-auth/internal/tool/toolratelimit"
-	"go-auth/internal/tool/toolstring"
 	"net/http"
 	"strings"
 
@@ -34,17 +34,17 @@ type AccountForgotPasswordController struct {
 
 func (x *AccountForgotPasswordController) Handler() error {
 
-	err := x.createDto()
+	err := x.createDTO()
 	if err != nil {
 		return err
 	}
 
-	err = x.handleDto()
+	err = x.handleDTO()
 	if err != nil {
 		return err
 	}
 
-	err = x.responseDto()
+	err = x.responseDTO()
 	if err != nil {
 		return err
 	}
@@ -100,7 +100,7 @@ func (x *AccountForgotPasswordController) validateFields() {
 	dto := x.dto
 
 	{
-		dto.PhoneNumber = toolstring.NormalizePhoneNumber(dto.PhoneNumber)
+		dto.PhoneNumber = utilstring.NormalizePhoneNumber(dto.PhoneNumber)
 		dto.NewPassword = strings.TrimSpace(dto.NewPassword)
 
 	}
@@ -130,17 +130,17 @@ func (x *AccountForgotPasswordController) validateFields() {
 	{
 
 		if dto.IsStepID() {
-			dto.RemoveModelError("secret_code")
-			dto.RemoveModelError("new_password")
+			dto.RemoveError("secret_code")
+			dto.RemoveError("new_password")
 		}
 
 		if dto.IsStepSecretCode() {
-			// dto.RemoveModelError("secret_code")
-			dto.RemoveModelError("new_password")
+			// dto.RemoveError("secret_code")
+			dto.RemoveError("new_password")
 		}
 
 		if dto.IsStepNewPassword() {
-			dto.RemoveModelError("secret_code")
+			dto.RemoveError("secret_code")
 		}
 	}
 }
@@ -168,7 +168,7 @@ func (x *ForgotPasswordDTO) IsStepNewPassword() bool {
 	return x.StepName == "new_password"
 }
 
-func (x *AccountForgotPasswordController) createDto() error {
+func (x *AccountForgotPasswordController) createDTO() error {
 
 	x.dto = &ForgotPasswordDTO{}
 	//
@@ -196,7 +196,7 @@ func (x *AccountForgotPasswordController) createDto() error {
 	return nil
 }
 
-func (x *AccountForgotPasswordController) handleDto() error {
+func (x *AccountForgotPasswordController) handleDTO() error {
 
 	dto := x.dto
 
@@ -209,7 +209,7 @@ func (x *AccountForgotPasswordController) handleDto() error {
 
 	if x.IsPOST {
 
-		toolratelimit.RateLimitHuman()
+		utilratelimit.RateLimitHuman()
 
 		var user *service.UserAccount
 		var err error
@@ -230,13 +230,13 @@ func (x *AccountForgotPasswordController) handleDto() error {
 			}
 
 			if user == nil {
-				dto.AddModelError("", userLang.Lang("No user found." /*Lang*/))
+				dto.AddError("", userLang.Lang("No user found." /*Lang*/))
 			} else {
 				userExists = true
 				userCanSignIn = signInService.CanSignIn(user) // no user with this PhoneNumber
 
 				if !userCanSignIn {
-					dto.AddModelError("", userLang.Lang("User account locked out." /*Lang*/))
+					dto.AddError("", userLang.Lang("User account locked out." /*Lang*/))
 				}
 			}
 
@@ -318,7 +318,7 @@ func (x *AccountForgotPasswordController) handleDto() error {
 		}
 
 		if sendSms {
-			toolratelimit.RateLimitMessage()
+			utilratelimit.RateLimitMessage()
 
 			secretCode, err := accountService.GeneratePasscodeConfirmPhoneNumber(dto.PhoneNumber, user)
 
@@ -337,7 +337,7 @@ func (x *AccountForgotPasswordController) handleDto() error {
 
 	return nil
 }
-func (x *AccountForgotPasswordController) responseDtoAsAPI() (err error) {
+func (x *AccountForgotPasswordController) responseDTOAsAPI() (err error) {
 
 	dto := x.dto
 
@@ -348,7 +348,7 @@ func (x *AccountForgotPasswordController) responseDtoAsAPI() (err error) {
 
 }
 
-func (x *AccountForgotPasswordController) responseDtoAsMvc() (err error) {
+func (x *AccountForgotPasswordController) responseDTOAsMvc() (err error) {
 
 	dto := x.dto
 	appConfig := x.appConfig
@@ -370,11 +370,11 @@ func (x *AccountForgotPasswordController) responseDtoAsMvc() (err error) {
 
 	return nil
 }
-func (x *AccountForgotPasswordController) responseDto() (err error) {
+func (x *AccountForgotPasswordController) responseDTO() (err error) {
 
 	if x.isAPIMode {
-		return x.responseDtoAsAPI()
+		return x.responseDTOAsAPI()
 	} else {
-		return x.responseDtoAsMvc()
+		return x.responseDTOAsMvc()
 	}
 }
