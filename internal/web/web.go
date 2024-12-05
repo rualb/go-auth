@@ -161,14 +161,6 @@ func TokenParserMiddleware(appService service.AppService) echo.MiddlewareFunc {
 
 	return jwtMd
 
-	// return func(next echo.HandlerFunc) echo.HandlerFunc {
-
-	// 	return func(c echo.Context) error {
-
-	// 		handler := jwtMd(next)
-	// 		return handler(c)
-	// 	}
-	// }
 }
 
 func AuthorizeMiddleware(appService service.AppService, reddirect bool) echo.MiddlewareFunc {
@@ -183,7 +175,7 @@ func AuthorizeMiddleware(appService service.AppService, reddirect bool) echo.Mid
 
 				if reddirect {
 					reqURI := c.Request().RequestURI // "/dashboard?view=weekly"
-					redirectURL := utilstring.LocalURL(consts.PathAuthSignin, "return_url", reqURI)
+					redirectURL := utilstring.AppendURL(consts.PathAuthSignin, "return_url", reqURI)
 					return c.Redirect(http.StatusFound /*302*/, redirectURL)
 				} else {
 					return c.NoContent(http.StatusUnauthorized) // 401
@@ -211,19 +203,6 @@ func TokenRotateMiddleware(appService service.AppService) echo.MiddlewareFunc {
 		}
 	}
 }
-
-// func RotateAuthToken(c echo.Context, secretSource xtoken.SecretSource) {
-
-// 	claims := AuthTokenClaims(c)
-
-// 	if claims != nil && claims.IsValid() && claims.NeedRotation() {
-// 		claimsNew := claims.Rotate(false)
-// 		if claimsNew != nil {
-// 			CreateAuthTokenWithClaims(c, claimsNew, secretSource)
-// 		}
-// 	}
-
-// }
 
 func assetsReqSkipper(c echo.Context) bool {
 	path := c.Request().URL.Path
@@ -253,6 +232,30 @@ func jwtParseErrorHandler(c echo.Context, err error) error {
 func IsSignedIn(c echo.Context) bool {
 	claims := AuthTokenClaims(c)
 	return claims != nil && claims.IsSignedIn()
+}
+
+func GetAccount(c echo.Context, srv service.AppService) (*service.UserAccount, error) {
+
+	if srv == nil {
+		return nil, fmt.Errorf("arg is nil: service")
+	}
+
+	acc, _ := c.Get("user_account").(*service.UserAccount)
+
+	if acc != nil {
+		return acc, nil
+	}
+
+	userID := UserID(c)
+
+	acc, err := srv.Account().FindByID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	c.Set("user_account", acc)
+
+	return acc, nil
 }
 
 func AuthTokenClaims(c echo.Context) *xtoken.TokenClaimsDTO {

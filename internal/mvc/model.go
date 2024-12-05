@@ -119,6 +119,21 @@ func (x *ModelValidatorStr) Password(minLen int) (hasError bool) {
 	return false
 }
 
+// Keyword checks if the field's value match keyword.
+func (x *ModelValidatorStr) Keyword(keyword string) (hasError bool) {
+	v := x.fieldValue
+	if v != keyword {
+
+		x.model.AddError(x.fieldName,
+			x.lang.Lang("Keyword '{0}' is required.", /*Lang*/
+				keyword,
+			))
+
+		return true
+	}
+	return false
+}
+
 // hasDigitLowerUpper checks if the string contains at least one digit, one lowercase, and one uppercase character.
 func hasDigitLowerUpper(s string) (hasError bool) {
 	hasDigit := false

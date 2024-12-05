@@ -105,21 +105,21 @@ func (x *AccountForgotPasswordController) validateFields() {
 
 	}
 	{
-		v := dto.NewModelValidatorStr(lang, "email", "Email" /*Lang*/, dto.Email, consts.DefaultTextSize)
+		v := dto.NewModelValidatorStr(lang, "email", "Email" /*Lang*/, dto.Email, consts.DefaultTextLength)
 		v.Required()
 		v.Email(consts.EmailMinLength)
 
 	}
 
 	{
-		v := dto.NewModelValidatorStr(lang, "new_password", "New password" /*Lang*/, dto.NewPassword, consts.DefaultTextSize)
+		v := dto.NewModelValidatorStr(lang, "new_password", "New password" /*Lang*/, dto.NewPassword, consts.PasswordMaxLength)
 		v.Required()
 		v.Password(consts.PasswordMinLength)
 
 	}
 
 	{
-		v := dto.NewModelValidatorStr(lang, "secret_code", "Secret code" /*Lang*/, dto.SecretCode, consts.DefaultTextSize)
+		v := dto.NewModelValidatorStr(lang, "secret_code", "Secret code" /*Lang*/, dto.SecretCode, consts.DefaultTextLength)
 		v.Required()
 		v.LengthRange(consts.SecretCodeLength, consts.SecretCodeLength)
 
@@ -197,7 +197,7 @@ func (x *AccountForgotPasswordController) handleDTO() error {
 	userLang := x.userLang
 	c := x.webCtxt
 
-	accountService := x.appService.AccountService()
+	accountService := x.appService.Account()
 
 	signInService := controller.SignInService(c, x.appService)
 

@@ -13,10 +13,11 @@ const (
 	EmailMinLength = 6
 
 	PasswordMinLength = 8
+	PasswordMaxLength = 50 // bcrypt 72
 
 	SecretCodeLength      = 8
-	LongTextSize          = int(int16(^uint16(0) >> 1)) // equivalent of short.MaxValue
-	DefaultTextSize       = 100
+	LongTextLength        = 32767 //  int(int16(^uint16(0) >> 1)) // equivalent of short.MaxValue
+	DefaultTextLength     = 100
 	DefaultMapZoom        = 12
 	DefaultMaxQty         = 12
 	TitleTextLengthTiny   = 12
@@ -52,7 +53,9 @@ const (
 	PathAPI = "/api"
 )
 
-const ()
+const (
+	RoleAdmin = "admin"
+)
 
 //nolint:gosec
 const (
@@ -60,9 +63,9 @@ const (
 
 	PathAuthHelloWorld = "/auth/hello-world"
 
-	PathAuth            = "/auth"
-	PathAuthAPI         = "/auth/api"
-	PathAuthTestPingAPI = "/auth/api/ping"
+	PathAuth             = "/auth"
+	PathAuthAPI          = "/auth/api"
+	PathAuthPingDebugAPI = "/auth/api/ping"
 	//
 	PathAuthAssets = "/auth/assets"
 
@@ -92,5 +95,7 @@ const (
 	PathAuthStatusAPI                    = "/auth/api/status"
 	PathAuthConfigAPI                    = "/auth/api/config"
 
-	PathAuthManager = "/auth/manager"
+	PathAuthAccountSettings          = "/auth/account/settings"
+	PathAuthAccountChangePasswordAPI = "/auth/api/account/change-password"
+	PathAuthAccountDeleteDataAPI     = "/auth/api/account/delete-data"
 )

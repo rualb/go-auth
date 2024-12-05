@@ -33,7 +33,7 @@ type ModelAppConfig struct {
 type ModelConst struct {
 	SecretCodeLength     int // 6
 	PasswordMinLength    int // 8
-	DefaultTextSize      int // 100
+	DefaultTextLength    int // 100
 	PhoneNumberMinLength int // 8
 	PhoneNumberMaxLength int // 14
 }
@@ -71,7 +71,7 @@ func NewModelWrap(c echo.Context, model any, isFragment bool, title string, appC
 		API: ModelAPI{
 			Icon:            AppIcons,
 			Lang:            lang.Lang,
-			URL:             utilstring.LocalURL,
+			URL:             utilstring.AppendURL,
 			IsAuthenticated: xweb.IsSignedIn(c),
 		},
 		Prm: ModelPrm{
@@ -93,7 +93,7 @@ func NewModelWrap(c echo.Context, model any, isFragment bool, title string, appC
 			AppConst: ModelConst{
 				SecretCodeLength:     consts.SecretCodeLength,
 				PasswordMinLength:    consts.PasswordMinLength,
-				DefaultTextSize:      consts.DefaultTextSize, // 100
+				DefaultTextLength:    consts.DefaultTextLength, // 100
 				PhoneNumberMinLength: consts.PhoneNumberMinLength,
 				PhoneNumberMaxLength: consts.PhoneNumberMaxLength,
 			},

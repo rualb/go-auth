@@ -27,15 +27,34 @@ const (
 
 // UserAccount Username,Email,NormalizedEmail are uniqueIndex with condition "not empty"
 type UserAccount struct {
-	ID              string `gorm:"primaryKey"`
-	Username        string `gorm:"uniqueIndex:,where:username != ''"`
-	PhoneNumber     string
-	Email           string // use this on emailing and show
-	NormalizedEmail string `gorm:"uniqueIndex:,where:normalized_email != ''"` // use this on search
+	ID              string `json:"id,omitempty" gorm:"size:255;primaryKey"`
+	Username        string `json:"username,omitempty" gorm:"size:255;uniqueIndex:,where:username != ''"`
+	PhoneNumber     string `json:"phone_number,omitempty" gorm:"size:255;uniqueIndex:,where:phone_number != ''"`
+	Email           string `json:"email,omitempty" gorm:"size:255"`                             // use this on emailing and show
+	NormalizedEmail string `json:"-" gorm:"size:255;uniqueIndex:,where:normalized_email != ''"` // use this on search
 	// SecurityStamp   string // Key := Base32(Random(32))  HMACSHA1(Key)  Key == VTOQQ2PQKD7A2KTSXU7OFLKUNI7QEZRJ
-	PasswordHash string
-	CreatedAt    time.Time
-	Roles        string
+	PasswordHash string    `json:"-" gorm:"size:255"`
+	CreatedAt    time.Time `json:"-"`
+	UpdatedAt    time.Time `json:"-"` // auto-updated
+	Roles        string    `json:"roles,omitempty" gorm:"size:255"`
+}
+
+func (x *UserAccount) Fill() {
+	if x.ID == "" {
+		x.ID = uuid.New().String()
+		// x.CreatedAt = time.Now().UTC()
+	}
+
+	// err := res.RefreshSecurityStamp()
+	// if err != nil {
+	// 	return nil, err
+	// }
+}
+
+func NewUserAccount() (*UserAccount, error) {
+	res := &UserAccount{}
+	res.Fill()
+	return res, nil
 }
 
 func (x *UserAccount) SetUsername(value string) {
@@ -90,24 +109,6 @@ func (x *UserAccount) CompareHashAndPassword(str string) bool {
 
 // 	return nil
 // }
-
-func NewUserAccount() (*UserAccount, error) {
-
-	now := time.Now().UTC() // now
-
-	id := uuid.New().String()
-	res := &UserAccount{
-		CreatedAt: now,
-		ID:        id,
-	}
-
-	// err := res.RefreshSecurityStamp()
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	return res, nil
-}
 
 func makeScope(scopeName string, scopeUser *UserAccount, scopeInfo string) string {
 
@@ -427,7 +428,7 @@ func (x defaultAccountService) CreateUserAccount(userAccount *UserAccount) (err 
 }
 func (x defaultAccountService) UpdateUserAccount(userAccount *UserAccount) (err error) {
 	// result := x.appService.Repository().Updates(userAccount)
-	result := x.appService.Repository().Save(userAccount)
+	result := x.appService.Repository().Model(userAccount).Select("*" /*over all columns*/).Updates(userAccount)
 
 	if result.Error != nil {
 		return result.Error

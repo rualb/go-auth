@@ -42,13 +42,9 @@ func (x *Command) Exec() {
 	middleware.Init(x.WebDriver, x.AppService) // 1
 	router.Init(x.WebDriver, x.AppService)     // 2
 
-	{
-
-		authAssetsFS := webfs.MustAuthAssetsFS()
-
-		middleware.AssetsContentsMiddleware(x.WebDriver, x.AppService, authAssetsFS)
-
-	}
+	middleware.AssetsContentsMiddleware(x.WebDriver, x.AppService,
+		webfs.MustAuthAssetsFS(),
+	)
 
 	defer func() {
 		xlog.Info("Closing repository")

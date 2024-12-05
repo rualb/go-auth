@@ -101,14 +101,14 @@ func (x *AccountSigninController) validateFields() {
 	}
 
 	{
-		v := dto.NewModelValidatorStr(lang, "email", "Email" /*Lang*/, dto.Email, consts.DefaultTextSize)
+		v := dto.NewModelValidatorStr(lang, "email", "Email" /*Lang*/, dto.Email, consts.DefaultTextLength)
 		v.Required()
 		v.Email(consts.EmailMinLength)
 
 	}
 
 	{
-		v := dto.NewModelValidatorStr(lang, "password", "Password" /*Lang*/, dto.Password, consts.DefaultTextSize)
+		v := dto.NewModelValidatorStr(lang, "password", "Password" /*Lang*/, dto.Password, consts.PasswordMaxLength)
 		v.Required()
 		// v.Password(consts.PasswordMinLength) // for signin password check not required
 
@@ -150,7 +150,7 @@ func (x *AccountSigninController) handleDTO() error {
 	userLang := x.userLang
 	c := x.webCtxt
 
-	accountService := x.appService.AccountService()
+	accountService := x.appService.Account()
 
 	signInService := controller.SignInService(c, x.appService)
 

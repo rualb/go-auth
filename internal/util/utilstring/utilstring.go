@@ -64,9 +64,9 @@ func IsEmail(str string) bool {
 	return strings.Contains(str, "@") || strings.Contains(str, ".")
 }
 
-// LocalURL join like path?args[0]=args[1]&args[2]=args[3]#args[4]
+// AppendURL join like path?args[0]=args[1]&args[2]=args[3]#args[4]
 // ignore query key-value pair or fragment if is empty
-func LocalURL(path string, args ...string) string {
+func AppendURL(path string, args ...string) string {
 
 	count := len(args)
 	pairs := count / 2

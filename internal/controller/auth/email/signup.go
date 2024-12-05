@@ -110,21 +110,21 @@ func (x *AccountSignupController) validateFields() {
 	}
 
 	{
-		v := dto.NewModelValidatorStr(lang, "email", "Email" /*Lang*/, dto.Email, consts.DefaultTextSize)
+		v := dto.NewModelValidatorStr(lang, "email", "Email" /*Lang*/, dto.Email, consts.DefaultTextLength)
 		v.Required()
 		v.Email(consts.EmailMinLength)
 
 	}
 
 	{
-		v := dto.NewModelValidatorStr(lang, "password", "Password" /*Lang*/, dto.Password, consts.DefaultTextSize)
+		v := dto.NewModelValidatorStr(lang, "password", "Password" /*Lang*/, dto.Password, consts.PasswordMaxLength)
 		v.Required()
 		v.Password(consts.PasswordMinLength)
 
 	}
 
 	{
-		v := dto.NewModelValidatorStr(lang, "secret_code", "Secret code" /*Lang*/, dto.SecretCode, consts.DefaultTextSize)
+		v := dto.NewModelValidatorStr(lang, "secret_code", "Secret code" /*Lang*/, dto.SecretCode, consts.DefaultTextLength)
 		v.Required()
 		v.LengthRange(consts.SecretCodeLength, consts.SecretCodeLength)
 
@@ -204,7 +204,7 @@ func (x *AccountSignupController) handleDTO() error {
 	userLang := x.userLang
 	c := x.webCtxt
 
-	accountService := x.appService.AccountService()
+	accountService := x.appService.Account()
 	if x.IsPOST {
 
 		utilratelimit.RateLimitHuman()

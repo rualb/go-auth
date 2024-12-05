@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base32"
 	"encoding/base64"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -42,6 +43,14 @@ func RandomCryptoBase32(n int) (string, error) {
 
 // HashPassword hashes the password using bcrypt
 func HashPassword(password string) (string, error) {
+
+	// max bcrypt len 72
+	password = strings.TrimSpace(password)
+
+	if password == "" {
+		return "", nil // empty password empty hash
+	}
+
 	// Generate a bcrypt hash of the password with a default cost
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -54,12 +63,12 @@ func HashPassword(password string) (string, error) {
 // CompareHashAndPassword compares the hashed password with the plain text password
 func CompareHashAndPassword(hash, password string) bool {
 
-	if hash == "" {
-		return false
-	}
+	// Trim inputs to avoid accidental spaces causing failures
+	hash = strings.TrimSpace(hash)
+	password = strings.TrimSpace(password)
 
-	if password == "" {
-		return false
+	if hash == "" || password == "" {
+		return false // Returning false for empty inputs
 	}
 
 	// Compare the hashed password with the plain text password

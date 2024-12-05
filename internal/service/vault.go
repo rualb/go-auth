@@ -17,11 +17,11 @@ const (
 )
 
 type VaultKey struct {
-	ID        string `gorm:"primaryKey"`
+	ID        string `gorm:"size:255;primaryKey"`
 	CreatedAt time.Time
-	AuthKey   string // base64 for auth
-	OtpKey    string // base64 otp
-	HashKey   string // base64 key for signup and password changing
+	AuthKey   string `gorm:"size:255"` // base64 for auth
+	OtpKey    string `gorm:"size:255"` // base64 otp
+	HashKey   string `gorm:"size:255"` // base64 key for signup and password changing
 }
 
 func (x VaultKey) IsEmpty() bool {
@@ -167,7 +167,7 @@ func (x vaultKeyScope) KeyByID(id string) (secret []byte, err error) {
 }
 
 type SecretKey struct {
-	ID        string `gorm:"primaryKey"`
+	ID        string
 	CreatedAt time.Time
 	AuthKey   []byte //   for auth
 	OtpKey    []byte //   otp

@@ -15,7 +15,7 @@ import (
 
 // AppService all services
 type AppService interface {
-	AccountService() AccountService
+	Account() AccountService
 
 	Config() *config.AppConfig
 	// Logger() logger.AppLogger
@@ -134,8 +134,9 @@ func MustNewAppServiceTesting() AppService {
 
 	return MustNewAppServiceProd()
 }
-func (x *defaultAppService) AccountService() AccountService { return x.accountService }
-func (x *defaultAppService) Config() *config.AppConfig      { return x.configSource.Config() }
+func (x *defaultAppService) Account() AccountService { return x.accountService }
+
+func (x *defaultAppService) Config() *config.AppConfig { return x.configSource.Config() }
 
 // func (x *appService) Logger() logger.AppLogger       { return x.container.Logger() }
 

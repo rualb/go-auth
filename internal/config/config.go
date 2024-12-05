@@ -190,6 +190,8 @@ func (x AppConfigVaultKey) IsEmpty() bool {
 type AppConfigVault struct {
 	Keys []AppConfigVaultKey `json:"keys"` // keychain
 }
+type AppConfigAuth struct {
+}
 
 type AppConfigIdentity struct {
 	PhoneNumberPrefix string `json:"phone_number_prefix"`
@@ -273,6 +275,8 @@ type AppConfig struct {
 
 	Vault AppConfigVault `json:"vault"`
 
+	Auth AppConfigAuth `json:"auth"`
+
 	Identity AppConfigIdentity `json:"identity"`
 
 	DB    Database `json:"database"`
@@ -314,7 +318,7 @@ func NewAppConfig() *AppConfig {
 		},
 		Messenger: AppConfigMessenger{
 
-			ServiceURL: "http://127.0.0.1:30780/messenger/api/{code}", // prefix of url
+			ServiceURL: "http://127.0.0.1:30780/sys/api/messenger/{code}", // prefix of url
 		},
 		DB: Database{
 			Dialect:  "postgres",

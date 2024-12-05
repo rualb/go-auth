@@ -36,24 +36,26 @@ func (x *defaultSigninService) CanSignIn(userAccount *UserAccount) (accountValid
 
 func (x *defaultSigninService) PasswordSignIn(userAccount *UserAccount, password string) (success bool, err error) {
 
+	// Check if the user can sign in (e.g., not locked out)
 	if !x.CanSignIn(userAccount) {
 		return false, nil
 	}
 
+	// Compare the password hash with the provided password
 	if userAccount.CompareHashAndPassword(password) {
+		// If the password is correct, proceed with signing in
 		err := x.SignIn(userAccount)
-
 		if err == nil {
 			return true, nil
-
 		} else {
-			// TODO
-			return false, fmt.Errorf("password sing in: %v", err)
+			// Return a descriptive error if the SignIn fails
+			return false, fmt.Errorf("password sign in: %v", err)
 		}
-
 	}
 
+	// Return false if password comparison failed
 	return false, nil
+
 }
 
 func (x *defaultSigninService) SignIn(userAccount *UserAccount) error {
@@ -77,7 +79,6 @@ func (x *defaultSigninService) RotateSignIn(forceRotate bool) {
 }
 
 func (x *defaultSigninService) SignOut() {
-
 	x.tokenPersist.DeleteAuthToken()
 }
 

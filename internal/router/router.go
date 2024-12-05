@@ -10,6 +10,7 @@ import (
 
 	"go-auth/internal/config/consts"
 	controller "go-auth/internal/controller"
+	account "go-auth/internal/controller/account"
 
 	auth "go-auth/internal/controller/auth"
 	auth_email "go-auth/internal/controller/auth/email"
@@ -31,9 +32,8 @@ func Init(e *echo.Echo, appService service.AppService) {
 
 	initCORSConfig(e, appService)
 
-	initTestController(e, appService)
 	initAuthController(e, appService)
-	initHealthController(e, appService)
+	initDebugController(e, appService)
 
 	initSys(e, appService)
 }
@@ -163,24 +163,9 @@ func initCORSConfig(e *echo.Echo, _ service.AppService) {
 	// }
 }
 
-func initHealthController(e *echo.Echo, appService service.AppService) {
-	ping := controller.NewPingController(appService)
-	e.GET(consts.PathAuthTestPingAPI, func(c echo.Context) error { return ping.Ping(c) })
-}
-func initTestController(e *echo.Echo, appService service.AppService) {
+func initDebugController(e *echo.Echo, _ service.AppService) {
 
-	//
-
-	{
-
-		handler := func(c echo.Context) error {
-			ctrl := auth.NewHelloWorldController(appService, c)
-			return ctrl.Handler()
-		}
-
-		e.GET(consts.PathAuthHelloWorld, handler)
-
-	}
+	e.GET(consts.PathAuthPingDebugAPI, func(c echo.Context) error { return c.String(http.StatusOK, "pong") })
 
 }
 
@@ -206,9 +191,6 @@ func initAuthController(e *echo.Echo, appService service.AppService) {
 				return ctrl.Handler()
 			}
 
-			// e.GET(consts.PathAuthLockout, handler)
-			// e.GET(consts.PathAuthAccessDenied, handler)
-
 			if isDebug {
 				e.GET(consts.PathAuthHelloWorld, handler)
 			}
@@ -226,29 +208,14 @@ func initAuthController(e *echo.Echo, appService service.AppService) {
 			e.GET(consts.PathAuthSignout, handler)
 			e.GET(consts.PathAuthLockout, handler)
 			e.GET(consts.PathAuthAccessDenied, handler)
+
+			e.GET(consts.PathAuthAccountSettings, handler,
+				xweb.AuthorizeMiddleware(appService, true),
+			)
+
 		}
 
 	}
-	// {
-	// 	handler := func(c echo.Context) error {
-	// 		ctrl := account.NewLockoutController(appService)
-	// 		return ctrl.Handler(c)
-	// 	}
-
-	// 	e.GET(consts.PathAuthLockout, handler)
-
-	// }
-
-	// {
-
-	// 	handler := func(c echo.Context) error {
-	// 		ctrl := account.NewAccessDeniedController(appService)
-	// 		return ctrl.Handler(c)
-	// 	}
-
-	// 	e.GET(consts.PathAuthAccessDenied, handler)
-
-	// }
 
 	{
 
@@ -312,9 +279,6 @@ func initAuthController(e *echo.Echo, appService service.AppService) {
 
 		}
 
-		// e.GET(prefix, func(c echo.Context) error { return handler(c, false) })
-		// e.POST(prefix, func(c echo.Context) error { return handler(c, false) })
-
 	}
 
 	{
@@ -345,8 +309,6 @@ func initAuthController(e *echo.Echo, appService service.AppService) {
 
 			}
 		}
-		// e.GET(prefix, func(c echo.Context) error { return handler(c, false) })
-		// e.POST(prefix, func(c echo.Context) error { return handler(c, false) })
 
 	}
 
@@ -383,15 +345,41 @@ func initAuthController(e *echo.Echo, appService service.AppService) {
 		)
 
 	}
+
 	{
 
-		e.GET(consts.PathAuthManager, func(c echo.Context) error {
+		{
+			authorize := xweb.AuthorizeMiddleware(appService, false)
 
-			return c.String(http.StatusOK, "manager")
+			grp := e.Group(consts.PathAuthAccountChangePasswordAPI, authorize)
 
-		}, xweb.AuthorizeMiddleware(appService, true))
+			handler := func(c echo.Context) error {
+				ctrl := account.NewChangePasswordController(appService, c)
+				return ctrl.Handler()
+			}
+
+			grp.GET("", func(c echo.Context) error { return handler(c) })
+			grp.POST("", func(c echo.Context) error { return handler(c) })
+
+		}
+
+		{
+			authorize := xweb.AuthorizeMiddleware(appService, false)
+
+			grp := e.Group(consts.PathAuthAccountDeleteDataAPI, authorize)
+
+			handler := func(c echo.Context) error {
+				ctrl := account.NewDeleteDataController(appService, c)
+				return ctrl.Handler()
+			}
+
+			grp.GET("", func(c echo.Context) error { return handler(c) })
+			grp.POST("", func(c echo.Context) error { return handler(c) })
+
+		}
 
 	}
+
 }
 
 /////////////////////////////////////////////////////

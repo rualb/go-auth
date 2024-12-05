@@ -3,6 +3,7 @@ package controller
 import (
 	"go-auth/internal/i18n"
 	"go-auth/internal/service"
+	"net/http"
 
 	xtoken "go-auth/internal/token"
 	xweb "go-auth/internal/web"
@@ -39,4 +40,24 @@ func newTokenPersist(c echo.Context, appService service.AppService) xtoken.Token
 }
 func SignInService(c echo.Context, appService service.AppService) service.SignInService {
 	return appService.SignInService(newTokenPersist(c, appService))
+}
+
+/////
+
+func IsPUT(c echo.Context) bool {
+	return c.Request().Method == http.MethodPut
+}
+
+func IsDELETE(c echo.Context) bool {
+	return c.Request().Method == http.MethodDelete
+}
+
+func GetAccount(c echo.Context) *service.UserAccount {
+	acc, _ := c.Get("user_account").(*service.UserAccount) // cached by middleware
+	return acc
+}
+
+func GetAccountWithService(c echo.Context, srv service.AppService) *service.UserAccount {
+	acc, _ := xweb.GetAccount(c, srv)
+	return acc
 }

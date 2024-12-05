@@ -71,19 +71,27 @@ func newHTTPErrorHandler(_ service.AppService) echo.HTTPErrorHandler {
 	}
 
 }
-func AssetsContentsMiddleware(e *echo.Echo, appService service.AppService, assetsFiles fs.FS) {
+
+func AssetsContentsMiddleware(e *echo.Echo, appService service.AppService,
+
+	assetsAuthFiles fs.FS,
+) {
 
 	xlog.Info("Start serving embedded static content")
 
-	grp := e.Group(consts.PathAuthAssets, func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			// c.Response().Before()
-			c.Response().Header().Add("Cache-Control", "public,max-age=31536000,immutable")
-			return next(c)
-		}
-	})
+	{
+		grp := e.Group(consts.PathAuthAssets, func(next echo.HandlerFunc) echo.HandlerFunc {
+			return func(c echo.Context) error {
+				// c.Response().Before()
+				c.Response().Header().Add("Cache-Control", "public,max-age=31536000,immutable")
+				return next(c)
+			}
+		})
 
-	grp.StaticFS("/", assetsFiles)
+		grp.StaticFS("/", assetsAuthFiles)
+	}
+
+	// admin
 
 }
 
