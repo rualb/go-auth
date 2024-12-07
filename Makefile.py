@@ -8,6 +8,8 @@ import sys
 
 """
 git init
+"""
+"""
 git add .
 git commit -m "-"
 git tag (Get-Content TAG)
