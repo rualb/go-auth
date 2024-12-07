@@ -4,7 +4,6 @@ import (
 	"go-auth/internal/config"
 	"go-auth/internal/config/consts"
 	controller "go-auth/internal/controller"
-	"go-auth/internal/util/utilratelimit"
 	"strings"
 
 	"go-auth/internal/i18n"
@@ -26,9 +25,8 @@ type AccountSigninController struct {
 
 	webCtxt echo.Context // webCtxt
 
-	isAPIMode bool
-
-	dto *SigninDTO
+	dto    *SigninDTO
+	status int
 }
 
 func (x *AccountSigninController) Handler() error {
@@ -52,19 +50,19 @@ func (x *AccountSigninController) Handler() error {
 }
 
 // NewAccountController is constructor.
-func NewAccountSigninController(appService service.AppService, c echo.Context, isAPIMode bool) *AccountSigninController {
+func NewAccountSigninController(appService service.AppService, c echo.Context) *AccountSigninController {
 
 	appConfig := appService.Config()
 
 	return &AccountSigninController{
 
 		appService: appService,
-		isAPIMode:  isAPIMode,
-		appConfig:  appConfig,
-		userLang:   controller.UserLang(c, appService),
-		IsGET:      controller.IsGET(c),
-		IsPOST:     controller.IsPOST(c),
-		webCtxt:    c,
+
+		appConfig: appConfig,
+		userLang:  controller.UserLang(c, appService),
+		IsGET:     controller.IsGET(c),
+		IsPOST:    controller.IsPOST(c),
+		webCtxt:   c,
 	}
 }
 
@@ -150,13 +148,18 @@ func (x *AccountSigninController) handleDTO() error {
 	userLang := x.userLang
 	c := x.webCtxt
 
+	botLimit := x.appService.Bot()
+
+	if botLimit.LimitIPActivity(c.RealIP()) {
+		x.status = http.StatusTooManyRequests
+		return nil
+	}
+
 	accountService := x.appService.Account()
 
 	signInService := controller.SignInService(c, x.appService)
 
 	if x.IsPOST {
-
-		utilratelimit.RateLimitHuman()
 
 		var user *service.UserAccount
 		var err error
@@ -190,6 +193,12 @@ func (x *AccountSigninController) handleDTO() error {
 		}
 
 		if userExists && userCanSignIn { /*Sign in*/
+
+			if botLimit.LimitAccountAccess(user.ID) {
+				x.status = http.StatusTooManyRequests
+				return nil
+			}
+
 			success, err := signInService.PasswordSignIn(user, dto.Password)
 
 			if err != nil {
@@ -226,33 +235,15 @@ func (x *AccountSigninController) responseDTOAsAPI() (err error) {
 
 	c := x.webCtxt
 
-	controller.CsrfToHeader(c)
-	return c.JSON(http.StatusOK, dto)
+	if x.status == 0 {
+		x.status = http.StatusOK
+	}
+	return c.JSON(x.status, dto)
 
 }
 
-func (x *AccountSigninController) responseDTOAsMvc() (err error) {
-
-	dto := x.dto
-	appConfig := x.appConfig
-	lang := x.userLang
-	c := x.webCtxt
-
-	data, err := mvc.NewModelWrap(c, dto, dto.IsFragment, "Sign in" /*Lang*/, appConfig, lang)
-	if err != nil {
-		return err
-	}
-	err = c.Render(http.StatusOK, "signin-email.html", data)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
 func (x *AccountSigninController) responseDTO() (err error) {
-	if x.isAPIMode {
-		return x.responseDTOAsAPI()
-	} else {
-		return x.responseDTOAsMvc()
-	}
+
+	return x.responseDTOAsAPI()
+
 }

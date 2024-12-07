@@ -41,26 +41,6 @@ func NewAppMessenger(config *config.AppConfig,
 	return
 }
 
-// func (x *appMessenger) SendSms(text string, phoneNumber string) {
-
-// 	data := map[string]string{
-// 		"type":         "sms",
-// 		"phone_number": phoneNumber,
-// 		"text":         text,
-// 	}
-
-// 	if x.Debug {
-
-// 		x.logger.ZapLogger().Debugw("SendSms", "type", "sms", "phone_number", phoneNumber, "text", text)
-// 	}
-
-// 	_, err := utilhttp.Post(x.config.PhoneNumberURL, data, nil)
-
-// 	if err != nil {
-// 		x.logger.ZapLogger().Errorf("Error from sms service: %v", err)
-// 	}
-// }
-
 func (x *defaultAppMessenger) SendSecretCodeToPhoneNumber(secretCode string, phoneNumber string, lang string) {
 	serviceCode := "sms-secret-code" // _ -
 

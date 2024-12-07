@@ -23,9 +23,8 @@ type AccountSignoutController struct {
 
 	webCtxt echo.Context // webCtxt
 
-	isAPIMode bool
-
-	dto *SignoutDTO
+	dto    *SignoutDTO
+	status int
 }
 
 func (x *AccountSignoutController) Signout() error {
@@ -68,50 +67,32 @@ func (x *AccountSignoutController) responseDTOAsAPI() (err error) {
 
 	c := x.webCtxt
 
-	controller.CsrfToHeader(c)
-	return c.JSON(http.StatusOK, dto)
+	if x.status == 0 {
+		x.status = http.StatusOK
+	}
+	return c.JSON(x.status, dto)
 
 }
 
-func (x *AccountSignoutController) responseDTOAsMvc() (err error) {
-
-	dto := x.dto
-	appConfig := x.appConfig
-	lang := x.userLang
-	c := x.webCtxt
-
-	data, err := mvc.NewModelWrap(c, dto, dto.IsFragment, "Sign out" /*Lang*/, appConfig, lang)
-	if err != nil {
-		return err
-	}
-	err = c.Render(http.StatusOK, "signout.html", data)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
 func (x *AccountSignoutController) responseDTO() (err error) {
-	if x.isAPIMode {
-		return x.responseDTOAsAPI()
-	} else {
-		return x.responseDTOAsMvc()
-	}
+
+	return x.responseDTOAsAPI()
+
 }
 
 // NewAccountController is constructor.
-func NewAccountSignoutController(appService service.AppService, c echo.Context, isAPIMode bool) *AccountSignoutController {
+func NewAccountSignoutController(appService service.AppService, c echo.Context) *AccountSignoutController {
 	appConfig := appService.Config()
 
 	return &AccountSignoutController{
 
 		appService: appService,
-		isAPIMode:  isAPIMode,
-		appConfig:  appConfig,
-		userLang:   controller.UserLang(c, appService),
-		IsGET:      controller.IsGET(c),
-		IsPOST:     controller.IsPOST(c),
-		webCtxt:    c,
+
+		appConfig: appConfig,
+		userLang:  controller.UserLang(c, appService),
+		IsGET:     controller.IsGET(c),
+		IsPOST:    controller.IsPOST(c),
+		webCtxt:   c,
 	}
 }
 

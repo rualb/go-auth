@@ -111,7 +111,7 @@ func TestAuthSigninEchoHandler(t *testing.T) {
 
 		// Setup handler with middleware
 		handler := func(c echo.Context) error {
-			ctrl := auth_phonenumber.NewAccountSigninController(appService, c, true)
+			ctrl := auth_phonenumber.NewAccountSigninController(appService, c)
 			return ctrl.Handler()
 		}
 

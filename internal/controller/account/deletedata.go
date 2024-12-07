@@ -4,7 +4,6 @@ import (
 	"go-auth/internal/config"
 	"go-auth/internal/config/consts"
 	"go-auth/internal/controller"
-	"go-auth/internal/util/utilratelimit"
 
 	"go-auth/internal/i18n"
 	"go-auth/internal/mvc"
@@ -28,7 +27,8 @@ type DeleteDataController struct {
 
 	userAccount *service.UserAccount
 
-	dto *DeleteDataDTO
+	dto    *DeleteDataDTO
+	status int
 }
 
 func (x *DeleteDataController) Handler() error {
@@ -150,12 +150,18 @@ func (x *DeleteDataController) handleDTO() error {
 	dto := x.dto
 	userLang := x.userLang
 	c := x.webCtxt
+
+	botLimit := x.appService.Bot()
+
+	if botLimit.LimitIPActivity(c.RealIP()) {
+		x.status = http.StatusTooManyRequests
+		return nil
+	}
+
 	accountService := x.appService.Account()
 	signInService := controller.SignInService(c, x.appService)
 
 	if x.IsPOST {
-
-		utilratelimit.RateLimitHuman()
 
 		isInputValid := dto.IsModelValid()
 
@@ -166,6 +172,11 @@ func (x *DeleteDataController) handleDTO() error {
 			user := x.userAccount
 			if user == nil {
 				dto.AddError("", userLang.Lang("No user found." /*Lang*/))
+				return nil
+			}
+
+			if botLimit.LimitAccountAccess(user.ID) {
+				x.status = http.StatusTooManyRequests
 				return nil
 			}
 
@@ -218,6 +229,8 @@ func (x *DeleteDataController) responseDTO() (err error) {
 	c := x.webCtxt
 	dto := x.dto
 
-	controller.CsrfToHeader(c)
-	return c.JSON(http.StatusOK, dto)
+	if x.status == 0 {
+		x.status = http.StatusOK
+	}
+	return c.JSON(x.status, dto)
 }

@@ -15,8 +15,6 @@ func TestNewVaultKey(t *testing.T) {
 		return b
 	}
 
-	beginTest()
-	defer endTest()
 	vaultKey, err := NewVaultKey()
 	assert.NoError(t, err)
 	assert.NotNil(t, vaultKey)
@@ -26,8 +24,7 @@ func TestNewVaultKey(t *testing.T) {
 }
 
 func TestVaultKeyIsEmpty(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	vaultKey := VaultKey{}
 	assert.True(t, vaultKey.IsEmpty())
 
@@ -36,8 +33,7 @@ func TestVaultKeyIsEmpty(t *testing.T) {
 }
 
 func TestDefaultVaultService_CurrentKey(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	vaultService, err := newVaultService(appService)
 	assert.NoError(t, err)
 
@@ -48,8 +44,7 @@ func TestDefaultVaultService_CurrentKey(t *testing.T) {
 }
 
 func TestDefaultVaultService_KeyByID(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	vaultService, err := newVaultService(appService)
 	assert.NoError(t, err)
 
@@ -71,8 +66,7 @@ func TestDefaultVaultService_KeyByID(t *testing.T) {
 }
 
 func TestVaultKeyScope_CurrentKey(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	vaultService, err := newVaultService(appService)
 	assert.NoError(t, err)
 
@@ -84,8 +78,7 @@ func TestVaultKeyScope_CurrentKey(t *testing.T) {
 }
 
 func TestVaultKeyScope_KeyByID(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	vaultService, err := newVaultService(appService)
 	assert.NoError(t, err)
 
@@ -105,8 +98,7 @@ func TestVaultKeyScope_KeyByID(t *testing.T) {
 }
 
 func TestAllKeys(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	keys, err := allKeys(appService)
 	assert.NoError(t, err)
 	assert.NotNil(t, keys)
@@ -120,8 +112,7 @@ func TestAllKeys(t *testing.T) {
 }
 
 func TestLoadKeys(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	vaultService, err := newVaultService(appService)
 	assert.NoError(t, err)
 

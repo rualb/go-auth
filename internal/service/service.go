@@ -6,6 +6,7 @@ import (
 	"go-auth/internal/messenger"
 	"go-auth/internal/repository"
 	xtoken "go-auth/internal/token"
+	"go-auth/internal/util/utilbotlimit"
 	xlog "go-auth/internal/util/utillog"
 	"net/http"
 	"os"
@@ -29,6 +30,8 @@ type AppService interface {
 	Vault() VaultService
 
 	Repository() repository.AppRepository
+
+	Bot() *utilbotlimit.BotLimitManager
 }
 
 type defaultAppService struct {
@@ -40,6 +43,8 @@ type defaultAppService struct {
 	repository   repository.AppRepository
 	lang         i18n.AppLang
 	messenger    messenger.AppMessenger
+
+	botLimit *utilbotlimit.BotLimitManager
 }
 
 func (x *defaultAppService) mustConfig() {
@@ -79,6 +84,19 @@ func (x *defaultAppService) mustBuild() {
 	}
 
 	x.accountService = newAccountService(x)
+
+	if appConfig.BotLimit.Enabled {
+
+		x.botLimit = utilbotlimit.NewBotLimitManager(
+			appConfig.BotLimit.Memory,
+			time.Duration(appConfig.BotLimit.Lifetime)*time.Second,
+			appConfig.BotLimit.Limit,
+		)
+		xlog.Info("BotLimit is enabled: %+v", appConfig.BotLimit)
+	} else {
+		x.botLimit = &utilbotlimit.NoLimitManager
+		xlog.Warn("BotLimit is disabled")
+	}
 
 }
 
@@ -136,7 +154,8 @@ func MustNewAppServiceTesting() AppService {
 }
 func (x *defaultAppService) Account() AccountService { return x.accountService }
 
-func (x *defaultAppService) Config() *config.AppConfig { return x.configSource.Config() }
+func (x *defaultAppService) Config() *config.AppConfig          { return x.configSource.Config() }
+func (x *defaultAppService) Bot() *utilbotlimit.BotLimitManager { return x.botLimit }
 
 // func (x *appService) Logger() logger.AppLogger       { return x.container.Logger() }
 

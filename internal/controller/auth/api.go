@@ -85,7 +85,7 @@ func (x *ConfigAPIController) Handler() (err error) {
 	output := &dto.Output
 	c := x.webCtxt
 	//
-	controller.CsrfToHeader(c)
+
 	//
 	if meta.Status == 0 {
 		meta.Status = http.StatusOK

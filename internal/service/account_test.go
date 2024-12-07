@@ -8,44 +8,46 @@ import (
 )
 
 func TestNewUserAccount(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	account, err := NewUserAccount()
 	assert.NoError(t, err)
 	assert.NotNil(t, account)
 	assert.NotEmpty(t, account.ID)
 	assert.True(t, account.CreatedAt.Before(time.Now().Add(time.Millisecond)))
 
+	deleteAllAccounts()
 }
 
 func TestSetUsername(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	account, _ := NewUserAccount()
 	account.SetUsername("TestUser")
 	assert.Equal(t, "testuser", account.Username)
+
+	deleteAllAccounts()
 }
 
 func TestSetPhoneNumber(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	account, _ := NewUserAccount()
 	account.SetPhoneNumber("+123121234567")
 	assert.Equal(t, "+123121234567", account.PhoneNumber)
+
+	deleteAllAccounts()
 }
 
 func TestSetEmail(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	account, _ := NewUserAccount()
 	account.SetEmail("User@Example.com")
 	assert.Equal(t, "User@Example.com", account.Email)
 	assert.Equal(t, "user@example.com", account.NormalizedEmail)
+
+	deleteAllAccounts()
 }
 
 func TestSetPassword(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	account, _ := NewUserAccount()
 	err := account.SetPassword("StrongPass1")
 	assert.NoError(t, err)
@@ -56,11 +58,12 @@ func TestSetPassword(t *testing.T) {
 
 	isInvalid := account.CompareHashAndPassword("WrongPassword")
 	assert.False(t, isInvalid)
+
+	deleteAllAccounts()
 }
 
 func TestGenerateTokenConfirmPhoneNumber(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	service := newAccountService(appService)
 	userAccount, _ := NewUserAccount()
 	userAccount.SetPhoneNumber("+123121234567")
@@ -68,11 +71,12 @@ func TestGenerateTokenConfirmPhoneNumber(t *testing.T) {
 	token, err := service.GenerateTokenConfirmPhoneNumber("+123121234567", userAccount)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, token)
+
+	deleteAllAccounts()
 }
 
 func TestValidateTokenConfirmPhoneNumber(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	service := newAccountService(appService)
 	userAccount, _ := NewUserAccount()
 	userAccount.SetPhoneNumber("+123121234567")
@@ -82,11 +86,12 @@ func TestValidateTokenConfirmPhoneNumber(t *testing.T) {
 	ok, err := service.ValidateTokenConfirmPhoneNumber(token, "+123121234567", userAccount)
 	assert.NoError(t, err)
 	assert.True(t, ok)
+
+	deleteAllAccounts()
 }
 
 func TestGeneratePasscodeConfirmPhoneNumber(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	service := newAccountService(appService)
 	userAccount, _ := NewUserAccount()
 	userAccount.SetPhoneNumber("+123121234567")
@@ -94,11 +99,12 @@ func TestGeneratePasscodeConfirmPhoneNumber(t *testing.T) {
 	passcode, err := service.GeneratePasscodeConfirmPhoneNumber("+123121234567", userAccount)
 	assert.NoError(t, err)
 	assert.Len(t, passcode, 8)
+
+	deleteAllAccounts()
 }
 
 func TestValidatePasscodeConfirmPhoneNumber(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	service := newAccountService(appService)
 	userAccount, _ := NewUserAccount()
 	userAccount.SetPhoneNumber("+123121234567")
@@ -108,11 +114,12 @@ func TestValidatePasscodeConfirmPhoneNumber(t *testing.T) {
 	ok, err := service.ValidatePasscodeConfirmPhoneNumber(passcode, "+123121234567", userAccount)
 	assert.NoError(t, err)
 	assert.True(t, ok)
+
+	deleteAllAccounts()
 }
 
 func TestGenerateTokenConfirmEmail(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	service := newAccountService(appService)
 	userAccount, _ := NewUserAccount()
 	userAccount.SetEmail("user@example.com")
@@ -120,11 +127,12 @@ func TestGenerateTokenConfirmEmail(t *testing.T) {
 	token, err := service.GenerateTokenConfirmEmail("user@example.com", userAccount)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, token)
+
+	deleteAllAccounts()
 }
 
 func TestValidateTokenConfirmEmail(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	service := newAccountService(appService)
 	userAccount, _ := NewUserAccount()
 	userAccount.SetEmail("user@example.com")
@@ -134,11 +142,12 @@ func TestValidateTokenConfirmEmail(t *testing.T) {
 	ok, err := service.ValidateTokenConfirmEmail(token, "user@example.com", userAccount)
 	assert.NoError(t, err)
 	assert.True(t, ok)
+
+	deleteAllAccounts()
 }
 
 func TestGeneratePasscodeConfirmEmail(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	service := newAccountService(appService)
 	userAccount, _ := NewUserAccount()
 	userAccount.SetEmail("user@example.com")
@@ -146,11 +155,12 @@ func TestGeneratePasscodeConfirmEmail(t *testing.T) {
 	passcode, err := service.GeneratePasscodeConfirmEmail("user@example.com", userAccount)
 	assert.NoError(t, err)
 	assert.Len(t, passcode, 8)
+
+	deleteAllAccounts()
 }
 
 func TestValidatePasscodeConfirmEmail(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	service := newAccountService(appService)
 	userAccount, _ := NewUserAccount()
 	userAccount.SetEmail("user@example.com")
@@ -160,11 +170,12 @@ func TestValidatePasscodeConfirmEmail(t *testing.T) {
 	ok, err := service.ValidatePasscodeConfirmEmail(passcode, "user@example.com", userAccount)
 	assert.NoError(t, err)
 	assert.True(t, ok)
+
+	deleteAllAccounts()
 }
 
 func TestCreateUserAccount(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	service := newAccountService(appService)
 	userAccount, _ := NewUserAccount()
 	userAccount.SetUsername("testuser")
@@ -178,11 +189,12 @@ func TestCreateUserAccount(t *testing.T) {
 	retrievedAccount, err := service.FindByID(userAccount.ID)
 	assert.NoError(t, err)
 	assert.Equal(t, userAccount.Username, retrievedAccount.Username)
+
+	deleteAllAccounts()
 }
 
 func TestUpdateUserAccount(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	service := newAccountService(appService)
 	userAccount, _ := NewUserAccount()
 	userAccount.SetUsername("testuser")
@@ -200,11 +212,12 @@ func TestUpdateUserAccount(t *testing.T) {
 	retrievedAccount, err := service.FindByID(userAccount.ID)
 	assert.NoError(t, err)
 	assert.Equal(t, "updateduser", retrievedAccount.Username)
+
+	deleteAllAccounts()
 }
 
 func TestFindByID(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	service := newAccountService(appService)
 	userAccount, _ := NewUserAccount()
 	userAccount.SetUsername("testuser")
@@ -218,11 +231,12 @@ func TestFindByID(t *testing.T) {
 	retrievedAccount, err := service.FindByID(userAccount.ID)
 	assert.NoError(t, err)
 	assert.Equal(t, userAccount.Username, retrievedAccount.Username)
+
+	deleteAllAccounts()
 }
 
 func TestFindByUsername(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	service := newAccountService(appService)
 	userAccount, _ := NewUserAccount()
 	userAccount.SetUsername("testuser")
@@ -236,11 +250,12 @@ func TestFindByUsername(t *testing.T) {
 	retrievedAccount, err := service.FindByUsername("testuser")
 	assert.NoError(t, err)
 	assert.Equal(t, userAccount.Username, retrievedAccount.Username)
+
+	deleteAllAccounts()
 }
 
 func TestFindByPhoneNumber(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	service := newAccountService(appService)
 	userAccount, _ := NewUserAccount()
 	userAccount.SetUsername("testuser")
@@ -254,11 +269,12 @@ func TestFindByPhoneNumber(t *testing.T) {
 	retrievedAccount, err := service.FindByPhoneNumber("+123121234567")
 	assert.NoError(t, err)
 	assert.Equal(t, userAccount.PhoneNumber, retrievedAccount.PhoneNumber)
+
+	deleteAllAccounts()
 }
 
 func TestFindByNormalizedEmail(t *testing.T) {
-	beginTest()
-	defer endTest()
+
 	service := newAccountService(appService)
 	userAccount, _ := NewUserAccount()
 	userAccount.SetUsername("testuser")
@@ -272,4 +288,6 @@ func TestFindByNormalizedEmail(t *testing.T) {
 	retrievedAccount, err := service.FindByNormalizedEmail("USER@EXAMPLE.COM")
 	assert.NoError(t, err)
 	assert.Equal(t, userAccount.NormalizedEmail, retrievedAccount.NormalizedEmail)
+
+	deleteAllAccounts()
 }

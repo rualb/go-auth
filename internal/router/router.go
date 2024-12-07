@@ -1,6 +1,7 @@
 package router
 
 import (
+	"fmt"
 	"html/template"
 	"io"
 	"net/http"
@@ -9,14 +10,12 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"go-auth/internal/config/consts"
-	controller "go-auth/internal/controller"
 	account "go-auth/internal/controller/account"
 
 	auth "go-auth/internal/controller/auth"
 	auth_email "go-auth/internal/controller/auth/email"
 	auth_phonenumber "go-auth/internal/controller/auth/phonenumber"
 
-	mvc "go-auth/internal/mvc"
 	"go-auth/internal/service"
 	xweb "go-auth/internal/web"
 	webfs "go-auth/web"
@@ -116,24 +115,25 @@ func initSys(e *echo.Echo, appService service.AppService) {
 }
 
 type tmplRenderer struct {
-	viewsMvc  echo.Renderer
+	// viewsMvc  echo.Renderer
 	indexHTML *template.Template
 }
 
 func (x *tmplRenderer) Render(w io.Writer, name string, data any, c echo.Context) error {
 
-	if name == "auth.html" {
+	if name == "index.html" {
 
 		return x.indexHTML.ExecuteTemplate(w, name, data)
 	}
 
-	return x.viewsMvc.Render(w, name, data, c)
+	return fmt.Errorf("undef template")
+	// return x.viewsMvc.Render(w, name, data, c)
 
 }
 
 func mustNewRenderer() echo.Renderer {
 
-	indexHTML, err := template.New("auth.html").Parse(webfs.MustAuthIndexHTML())
+	indexHTML, err := template.New("index.html").Parse(webfs.MustAuthIndexHTML())
 
 	if err != nil {
 		panic(err)
@@ -142,7 +142,7 @@ func mustNewRenderer() echo.Renderer {
 	//	err := t.templates.ExecuteTemplate(w, "layout_header", data)
 
 	handler := &tmplRenderer{
-		viewsMvc:  mvc.NewTemplateRenderer(controller.ViewsFs(), "views/auth/*.html"),
+		// viewsMvc:  mvc.NewTemplateRenderer(controller.ViewsFs(), "views/auth/*.html"),
 		indexHTML: indexHTML,
 	}
 
@@ -166,6 +166,8 @@ func initCORSConfig(e *echo.Echo, _ service.AppService) {
 func initDebugController(e *echo.Echo, _ service.AppService) {
 
 	e.GET(consts.PathAuthPingDebugAPI, func(c echo.Context) error { return c.String(http.StatusOK, "pong") })
+	// publicly-available-no-sensitive-data
+	e.GET("/health", func(c echo.Context) error { return c.JSON(http.StatusOK, struct{}{}) })
 
 }
 
@@ -179,7 +181,7 @@ func initAuthController(e *echo.Echo, appService service.AppService) {
 	IsAuthSignup := appConfig.Identity.IsAuthSignup
 	IsAuthForgot := appConfig.Identity.IsAuthForgot
 
-	// type reqHandler func(c echo.Context, isAPIMode bool) error
+	// type reqHandler func(c echo.Context) error
 
 	// modeAPI := true
 	//
@@ -228,25 +230,25 @@ func initAuthController(e *echo.Echo, appService service.AppService) {
 
 			if isModePhone {
 
-				handler := func(c echo.Context, isAPIMode bool) error {
-					ctrl := auth_phonenumber.NewAccountSignupController(appService, c, isAPIMode)
+				handler := func(c echo.Context) error {
+					ctrl := auth_phonenumber.NewAccountSignupController(appService, c)
 					return ctrl.Handler()
 				}
 
-				e.GET(consts.PathAuthSignupPhoneNumberAPI, func(c echo.Context) error { return handler(c, true) })
-				e.POST(consts.PathAuthSignupPhoneNumberAPI, func(c echo.Context) error { return handler(c, true) })
+				e.GET(consts.PathAuthSignupPhoneNumberAPI, func(c echo.Context) error { return handler(c) })
+				e.POST(consts.PathAuthSignupPhoneNumberAPI, func(c echo.Context) error { return handler(c) })
 
 			}
 
 			if isModeEmail {
 
-				handler := func(c echo.Context, isAPIMode bool) error {
-					ctrl := auth_email.NewAccountSignupController(appService, c, isAPIMode)
+				handler := func(c echo.Context) error {
+					ctrl := auth_email.NewAccountSignupController(appService, c)
 					return ctrl.Handler()
 				}
 
-				e.GET(consts.PathAuthSignupEmailAPI, func(c echo.Context) error { return handler(c, true) })
-				e.POST(consts.PathAuthSignupEmailAPI, func(c echo.Context) error { return handler(c, true) })
+				e.GET(consts.PathAuthSignupEmailAPI, func(c echo.Context) error { return handler(c) })
+				e.POST(consts.PathAuthSignupEmailAPI, func(c echo.Context) error { return handler(c) })
 
 			}
 		}
@@ -257,25 +259,25 @@ func initAuthController(e *echo.Echo, appService service.AppService) {
 
 		if isModePhone {
 
-			handler := func(c echo.Context, isAPIMode bool) error {
-				ctrl := auth_phonenumber.NewAccountSigninController(appService, c, isAPIMode)
+			handler := func(c echo.Context) error {
+				ctrl := auth_phonenumber.NewAccountSigninController(appService, c)
 				return ctrl.Handler()
 			}
 
-			e.GET(consts.PathAuthSigninPhoneNumberAPI, func(c echo.Context) error { return handler(c, true) })
-			e.POST(consts.PathAuthSigninPhoneNumberAPI, func(c echo.Context) error { return handler(c, true) })
+			e.GET(consts.PathAuthSigninPhoneNumberAPI, func(c echo.Context) error { return handler(c) })
+			e.POST(consts.PathAuthSigninPhoneNumberAPI, func(c echo.Context) error { return handler(c) })
 
 		}
 
 		if isModeEmail {
 
-			handler := func(c echo.Context, isAPIMode bool) error {
-				ctrl := auth_email.NewAccountSigninController(appService, c, isAPIMode)
+			handler := func(c echo.Context) error {
+				ctrl := auth_email.NewAccountSigninController(appService, c)
 				return ctrl.Handler()
 			}
 
-			e.GET(consts.PathAuthSigninEmailAPI, func(c echo.Context) error { return handler(c, true) })
-			e.POST(consts.PathAuthSigninEmailAPI, func(c echo.Context) error { return handler(c, true) })
+			e.GET(consts.PathAuthSigninEmailAPI, func(c echo.Context) error { return handler(c) })
+			e.POST(consts.PathAuthSigninEmailAPI, func(c echo.Context) error { return handler(c) })
 
 		}
 
@@ -287,25 +289,25 @@ func initAuthController(e *echo.Echo, appService service.AppService) {
 
 			if isModePhone {
 
-				handler := func(c echo.Context, isAPIMode bool) error {
-					ctrl := auth_phonenumber.NewAccountForgotPasswordController(appService, c, isAPIMode)
+				handler := func(c echo.Context) error {
+					ctrl := auth_phonenumber.NewAccountForgotPasswordController(appService, c)
 					return ctrl.Handler()
 				}
 
-				e.GET(consts.PathAuthForgotPasswordPhoneNumberAPI, func(c echo.Context) error { return handler(c, true) })
-				e.POST(consts.PathAuthForgotPasswordPhoneNumberAPI, func(c echo.Context) error { return handler(c, true) })
+				e.GET(consts.PathAuthForgotPasswordPhoneNumberAPI, func(c echo.Context) error { return handler(c) })
+				e.POST(consts.PathAuthForgotPasswordPhoneNumberAPI, func(c echo.Context) error { return handler(c) })
 
 			}
 
 			if isModeEmail {
 
-				handler := func(c echo.Context, isAPIMode bool) error {
-					ctrl := auth_email.NewAccountForgotPasswordController(appService, c, isAPIMode)
+				handler := func(c echo.Context) error {
+					ctrl := auth_email.NewAccountForgotPasswordController(appService, c)
 					return ctrl.Handler()
 				}
 
-				e.GET(consts.PathAuthForgotPasswordEmailAPI, func(c echo.Context) error { return handler(c, true) })
-				e.POST(consts.PathAuthForgotPasswordEmailAPI, func(c echo.Context) error { return handler(c, true) })
+				e.GET(consts.PathAuthForgotPasswordEmailAPI, func(c echo.Context) error { return handler(c) })
+				e.POST(consts.PathAuthForgotPasswordEmailAPI, func(c echo.Context) error { return handler(c) })
 
 			}
 		}
@@ -314,13 +316,13 @@ func initAuthController(e *echo.Echo, appService service.AppService) {
 
 	{
 		// Sign out
-		handler := func(c echo.Context, isAPIMode bool) error {
-			ctrl := auth.NewAccountSignoutController(appService, c, isAPIMode)
+		handler := func(c echo.Context) error {
+			ctrl := auth.NewAccountSignoutController(appService, c)
 			return ctrl.Signout()
 		}
 
-		e.GET(consts.PathAuthSignoutAPI, func(c echo.Context) error { return handler(c, true) })
-		e.POST(consts.PathAuthSignoutAPI, func(c echo.Context) error { return handler(c, true) })
+		e.GET(consts.PathAuthSignoutAPI, func(c echo.Context) error { return handler(c) })
+		e.POST(consts.PathAuthSignoutAPI, func(c echo.Context) error { return handler(c) })
 
 	}
 	{

@@ -3,7 +3,6 @@ package account
 import (
 	"go-auth/internal/config"
 	"go-auth/internal/config/consts"
-	"go-auth/internal/util/utilratelimit"
 
 	"go-auth/internal/controller"
 	"go-auth/internal/i18n"
@@ -28,7 +27,8 @@ type ChangePasswordController struct {
 
 	userAccount *service.UserAccount
 
-	dto *ChangePasswordDTO
+	dto    *ChangePasswordDTO
+	status int
 }
 
 func (x *ChangePasswordController) Handler() error {
@@ -148,12 +148,18 @@ func (x *ChangePasswordController) handleDTO() error {
 
 	dto := x.dto
 	userLang := x.userLang
+	c := x.webCtxt
+
+	botLimit := x.appService.Bot()
+
+	if botLimit.LimitIPActivity(c.RealIP()) {
+		x.status = http.StatusTooManyRequests
+		return nil
+	}
 
 	accountService := x.appService.Account()
 
 	if x.IsPOST {
-
-		utilratelimit.RateLimitHuman()
 
 		isInputValid := dto.IsModelValid()
 
@@ -164,6 +170,11 @@ func (x *ChangePasswordController) handleDTO() error {
 			user := x.userAccount
 			if user == nil {
 				dto.AddError("", userLang.Lang("No user found." /*Lang*/))
+				return nil
+			}
+
+			if botLimit.LimitAccountAccess(user.ID) {
+				x.status = http.StatusTooManyRequests
 				return nil
 			}
 
@@ -200,6 +211,8 @@ func (x *ChangePasswordController) responseDTO() (err error) {
 	c := x.webCtxt
 	dto := x.dto
 
-	controller.CsrfToHeader(c)
-	return c.JSON(http.StatusOK, dto)
+	if x.status == 0 {
+		x.status = http.StatusOK
+	}
+	return c.JSON(x.status, dto)
 }

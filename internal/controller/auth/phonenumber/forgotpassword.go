@@ -4,7 +4,6 @@ import (
 	"go-auth/internal/config"
 	"go-auth/internal/config/consts"
 	controller "go-auth/internal/controller"
-	"go-auth/internal/util/utilratelimit"
 	"go-auth/internal/util/utilstring"
 
 	"go-auth/internal/i18n"
@@ -27,9 +26,8 @@ type AccountForgotPasswordController struct {
 
 	webCtxt echo.Context // webCtxt
 
-	isAPIMode bool
-
-	dto *ForgotPasswordDTO
+	dto    *ForgotPasswordDTO
+	status int
 }
 
 func (x *AccountForgotPasswordController) Handler() error {
@@ -53,19 +51,19 @@ func (x *AccountForgotPasswordController) Handler() error {
 }
 
 // NewAccountController is constructor.
-func NewAccountForgotPasswordController(appService service.AppService, c echo.Context, isAPIMode bool) *AccountForgotPasswordController {
+func NewAccountForgotPasswordController(appService service.AppService, c echo.Context) *AccountForgotPasswordController {
 
 	appConfig := appService.Config()
 
 	return &AccountForgotPasswordController{
 
 		appService: appService,
-		isAPIMode:  isAPIMode,
-		appConfig:  appConfig,
-		userLang:   controller.UserLang(c, appService),
-		IsGET:      controller.IsGET(c),
-		IsPOST:     controller.IsPOST(c),
-		webCtxt:    c,
+
+		appConfig: appConfig,
+		userLang:  controller.UserLang(c, appService),
+		IsGET:     controller.IsGET(c),
+		IsPOST:    controller.IsPOST(c),
+		webCtxt:   c,
 	}
 }
 
@@ -203,18 +201,22 @@ func (x *AccountForgotPasswordController) handleDTO() error {
 	userLang := x.userLang
 	c := x.webCtxt
 
+	botLimit := x.appService.Bot()
+
+	if botLimit.LimitIPActivity(c.RealIP()) {
+		x.status = http.StatusTooManyRequests
+		return nil
+	}
+
 	accountService := x.appService.Account()
 
 	signInService := controller.SignInService(c, x.appService)
 
 	if x.IsPOST {
 
-		utilratelimit.RateLimitHuman()
-
 		var user *service.UserAccount
 		var err error
 
-		sendSms := false
 		gotoNextStep := false
 		userExists := false
 		userCanSignIn := false /*Sign up*/
@@ -244,11 +246,31 @@ func (x *AccountForgotPasswordController) handleDTO() error {
 
 		if userExists && userCanSignIn { /*Sign up*/
 
+			if botLimit.LimitAccountAccess(user.ID) {
+				x.status = http.StatusTooManyRequests
+				return nil
+			}
+
 			switch {
 			case dto.IsStepID():
 				{
 					gotoNextStep = true
-					sendSms = true
+					sendSecretMsg := true
+
+					if sendSecretMsg {
+						if botLimit.LimitUserMessage(dto.PhoneNumber, user.ID) {
+							x.status = http.StatusTooManyRequests
+							return nil
+						}
+
+						secretCode, err := accountService.GeneratePasscodeConfirmPhoneNumber(dto.PhoneNumber, user)
+
+						if err != nil {
+							return err // error e.g. vault connect problem
+						}
+
+						x.appService.Messenger().SendSecretCodeToPhoneNumber(secretCode, dto.PhoneNumber, userLang.LangCode())
+					}
 				}
 			case dto.IsStepSecretCode():
 				{
@@ -317,18 +339,6 @@ func (x *AccountForgotPasswordController) handleDTO() error {
 			}
 		}
 
-		if sendSms {
-			utilratelimit.RateLimitMessage()
-
-			secretCode, err := accountService.GeneratePasscodeConfirmPhoneNumber(dto.PhoneNumber, user)
-
-			if err != nil {
-				return err // error e.g. vault connect problem
-			}
-
-			x.appService.Messenger().SendSecretCodeToPhoneNumber(secretCode, dto.PhoneNumber, userLang.LangCode())
-		}
-
 		if gotoNextStep {
 			dto.StepNext()
 		}
@@ -343,38 +353,15 @@ func (x *AccountForgotPasswordController) responseDTOAsAPI() (err error) {
 
 	c := x.webCtxt
 
-	controller.CsrfToHeader(c)
-	return c.JSON(http.StatusOK, dto)
+	if x.status == 0 {
+		x.status = http.StatusOK
+	}
+	return c.JSON(x.status, dto)
 
 }
 
-func (x *AccountForgotPasswordController) responseDTOAsMvc() (err error) {
-
-	dto := x.dto
-	appConfig := x.appConfig
-	userLang := x.userLang
-	c := x.webCtxt
-
-	if dto.NoRender {
-		return nil
-	}
-
-	data, err := mvc.NewModelWrap(c, dto, dto.IsFragment, "Password changing" /*Lang*/, appConfig, userLang)
-	if err != nil {
-		return err
-	}
-	err = c.Render(http.StatusOK, "forgot-password-phone-number.html", data)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
 func (x *AccountForgotPasswordController) responseDTO() (err error) {
 
-	if x.isAPIMode {
-		return x.responseDTOAsAPI()
-	} else {
-		return x.responseDTOAsMvc()
-	}
+	return x.responseDTOAsAPI()
+
 }

@@ -10,8 +10,9 @@ import sys
 git init
 git add .
 git commit -m "-"
-git tag "$(cat VERSION)"
-git tag (Get-Content VERSION)
+git tag (Get-Content TAG)
+git push origin
+git push origin (Get-Content TAG)
 """
 
 

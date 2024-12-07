@@ -92,7 +92,7 @@ const (
 	PathAuthSigninEmailAPI               = "/auth/api/signin/email"
 	PathAuthForgotPasswordEmailAPI       = "/auth/api/forgot-password/email"
 	PathAuthSignoutAPI                   = "/auth/api/signout"
-	PathAuthStatusAPI                    = "/auth/api/status"
+	PathAuthStatusAPI                    = "/auth/api/status" // get _csrf, user related, no-cache
 	PathAuthConfigAPI                    = "/auth/api/config"
 
 	PathAuthAccountSettings          = "/auth/account/settings"

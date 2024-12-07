@@ -193,6 +193,13 @@ type AppConfigVault struct {
 type AppConfigAuth struct {
 }
 
+type AppConfigBotLimit struct {
+	Enabled  bool `json:"enabled"`
+	Memory   int  `json:"memory"`
+	Lifetime int  `json:"lifetime"`
+	Limit    int  `json:"limit"`
+}
+
 type AppConfigIdentity struct {
 	PhoneNumberPrefix string `json:"phone_number_prefix"`
 
@@ -276,6 +283,8 @@ type AppConfig struct {
 	Vault AppConfigVault `json:"vault"`
 
 	Auth AppConfigAuth `json:"auth"`
+
+	BotLimit AppConfigBotLimit `json:"bot_limit"`
 
 	Identity AppConfigIdentity `json:"identity"`
 
@@ -369,6 +378,10 @@ func NewAppConfig() *AppConfig {
 
 			SysAPIKey: "",
 		},
+
+		BotLimit: AppConfigBotLimit{
+			Enabled: true,
+		},
 	}
 
 	return res
@@ -445,6 +458,8 @@ func (x *AppConfig) readEnvVar() error {
 	reader.String(&x.HTTPServer.ListenSys, "listen_sys", &CmdLine.ListenSys)
 
 	reader.String(&x.HTTPServer.SysAPIKey, "sys_api_key", &CmdLine.SysAPIKey)
+
+	reader.Bool(&x.BotLimit.Enabled, "bot_limit_enabled", nil)
 
 	if reader.envError != nil {
 		return reader.envError

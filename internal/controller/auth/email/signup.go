@@ -5,7 +5,6 @@ import (
 	"go-auth/internal/config"
 	"go-auth/internal/config/consts"
 	controller "go-auth/internal/controller"
-	"go-auth/internal/util/utilratelimit"
 	"strings"
 
 	"go-auth/internal/i18n"
@@ -26,9 +25,8 @@ type AccountSignupController struct {
 
 	webCtxt echo.Context // webCtxt
 
-	isAPIMode bool
-
-	dto *SignupDTO
+	dto    *SignupDTO
+	status int
 }
 
 func (x *AccountSignupController) Handler() error {
@@ -53,7 +51,7 @@ func (x *AccountSignupController) Handler() error {
 }
 
 // NewAccountController is constructor.
-func NewAccountSignupController(appService service.AppService, c echo.Context, isAPIMode bool) *AccountSignupController {
+func NewAccountSignupController(appService service.AppService, c echo.Context) *AccountSignupController {
 
 	appConfig := appService.Config()
 
@@ -61,7 +59,6 @@ func NewAccountSignupController(appService service.AppService, c echo.Context, i
 
 		appService: appService,
 
-		isAPIMode: isAPIMode,
 		appConfig: appConfig,
 		userLang:  controller.UserLang(c, appService),
 		IsGET:     controller.IsGET(c),
@@ -204,15 +201,19 @@ func (x *AccountSignupController) handleDTO() error {
 	userLang := x.userLang
 	c := x.webCtxt
 
+	botLimit := x.appService.Bot()
+
+	if botLimit.LimitIPActivity(c.RealIP()) {
+		x.status = http.StatusTooManyRequests
+		return nil
+	}
+
 	accountService := x.appService.Account()
 	if x.IsPOST {
-
-		utilratelimit.RateLimitHuman()
 
 		var user *service.UserAccount
 		var err error
 
-		sendSms := false
 		gotoNextStep := false
 
 		userCanSignup := false /*Sign up*/
@@ -239,11 +240,32 @@ func (x *AccountSignupController) handleDTO() error {
 
 		if userCanSignup { /*Sign up*/
 
+			if botLimit.LimitSignupActivity(Email) {
+				x.status = http.StatusTooManyRequests
+				return nil
+			}
+
 			switch {
 			case dto.IsStepID():
 				{
 					gotoNextStep = true
-					sendSms = true
+					sendSecretMsg := true
+
+					if sendSecretMsg {
+
+						if botLimit.LimitSignupMessage(Email) {
+							x.status = http.StatusTooManyRequests
+							return nil
+						}
+
+						secretCode, err := accountService.GeneratePasscodeConfirmEmail(Email, user)
+
+						if err != nil {
+							return err // error e.g. vault connect problem
+						}
+
+						x.appService.Messenger().SendSecretCodeToEmail(secretCode, Email, userLang.LangCode())
+					}
 				}
 			case dto.IsStepSecretCode():
 				{
@@ -334,19 +356,6 @@ func (x *AccountSignupController) handleDTO() error {
 			}
 		}
 
-		if sendSms {
-
-			utilratelimit.RateLimitMessage()
-
-			secretCode, err := accountService.GeneratePasscodeConfirmEmail(Email, user)
-
-			if err != nil {
-				return err // error e.g. vault connect problem
-			}
-
-			x.appService.Messenger().SendSecretCodeToEmail(secretCode, Email, userLang.LangCode())
-		}
-
 		if gotoNextStep {
 			dto.StepNext()
 		}
@@ -361,38 +370,15 @@ func (x *AccountSignupController) responseDTOAsAPI() (err error) {
 
 	c := x.webCtxt
 
-	controller.CsrfToHeader(c)
-	return c.JSON(http.StatusOK, dto)
+	if x.status == 0 {
+		x.status = http.StatusOK
+	}
+	return c.JSON(x.status, dto)
 
 }
 
-func (x *AccountSignupController) responseDTOAsMvc() (err error) {
-
-	dto := x.dto
-	appConfig := x.appConfig
-	lang := x.userLang
-	c := x.webCtxt
-
-	if dto.NoRender {
-		return nil
-	}
-
-	data, err := mvc.NewModelWrap(c, dto, dto.IsFragment, "Sign up" /*Lang*/, appConfig, lang)
-	if err != nil {
-		return err
-	}
-	err = c.Render(http.StatusOK, "signup-email.html", data)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
 func (x *AccountSignupController) responseDTO() (err error) {
 
-	if x.isAPIMode {
-		return x.responseDTOAsAPI()
-	} else {
-		return x.responseDTOAsMvc()
-	}
+	return x.responseDTOAsAPI()
+
 }
