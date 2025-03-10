@@ -201,6 +201,7 @@ type Database struct {
 	IdleTime  int    `json:"idle_time"`
 	Migration bool   `json:"migration"`
 	Debug     bool   `json:"debug"`
+	SSL       bool   `json:"ssl"`
 }
 
 // type AppConfigLogger struct {
@@ -483,6 +484,7 @@ func (x *AppConfig) readEnvVar() error {
 	reader.Int(&x.DB.MaxIdle, "db_max_idle", nil)
 	reader.Int(&x.DB.IdleTime, "db_idle_time", nil)
 	reader.Bool(&x.DB.Migration, "db_migration", nil)
+	reader.Bool(&x.DB.SSL, "db_ssl", nil)
 
 	// General configuration
 	reader.String(&x.Title, "title", nil)

@@ -115,9 +115,10 @@ func connectDatabase(
 	}
 
 	if cfg.Dialect == POSTGRES {
-		dsn = fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s connect_timeout=%s application_name=%s sslmode=disable ",
+		sslmode := "disable" // TODO "require" if cfg.SSL
+		dsn = fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s connect_timeout=%s application_name=%s sslmode=%s ",
 			cfg.Host, cfg.Port, cfg.User,
-			cfg.Name, cfg.Password, "10", appConfig.Name /*split*/)
+			cfg.Name, cfg.Password, "10", appConfig.Name /*split*/, sslmode)
 
 		if cfg.Schema != "" {
 			dsn += " search_path=" + cfg.Schema //  search_path=your_schema

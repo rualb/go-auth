@@ -83,7 +83,7 @@ func AssetsContentsMiddleware(e *echo.Echo, appService service.AppService,
 		grp := e.Group(consts.PathAuthAssets, func(next echo.HandlerFunc) echo.HandlerFunc {
 			return func(c echo.Context) error {
 				// c.Response().Before()
-				c.Response().Header().Add(`Cache-Control`, "public,max-age=31536000,immutable")
+				c.Response().Header().Add(`Cache-Control`, "public,max-age=2592000,immutable")
 				return next(c)
 			}
 		})
