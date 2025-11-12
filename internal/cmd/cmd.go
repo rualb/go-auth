@@ -54,7 +54,7 @@ func (x *Command) Exec() {
 
 	x.startWithGracefulShutdown()
 
-	time.Sleep(400 * time.Microsecond)
+	time.Sleep(400 * time.Millisecond)
 }
 
 func applyServer(s *http.Server, c *config.AppConfig) {

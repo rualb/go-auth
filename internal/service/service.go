@@ -75,7 +75,9 @@ func (x *defaultAppService) mustBuild() {
 
 	//
 
-	mustCreateRepository(x)
+	if appConfig.DB.Migration {
+		mustCreateRepository(x) //
+	}
 
 	x.vaultService, err = newVaultService(x)
 
