@@ -109,7 +109,7 @@ func (x TokenClaimsDTO) Rotate(forceRotate bool) *TokenClaimsDTO {
 
 		// config := x.appService.Config()
 
-		lifetime := claimsNew.ExpiresAt.Time.Sub(claimsNew.IssuedAt.Time)
+		lifetime := claimsNew.ExpiresAt.Sub(claimsNew.IssuedAt.Time)
 		lifetime = min(lifetime, time.Hour*24*30) // max 30 days
 
 		claimsNew.SetLifetime(lifetime) // extend lifetime

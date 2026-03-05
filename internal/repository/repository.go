@@ -114,7 +114,8 @@ func connectDatabase(
 		gormConfig.Logger.Info(context.TODO(), "gorm logger mode: info/debug")
 	}
 
-	if cfg.Dialect == POSTGRES {
+	switch cfg.Dialect {
+	case POSTGRES:
 		sslmode := "disable" // TODO "require" if cfg.SSL
 		dsn = fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s connect_timeout=%s application_name=%s sslmode=%s ",
 			cfg.Host, cfg.Port, cfg.User,
@@ -125,7 +126,7 @@ func connectDatabase(
 		}
 
 		return gorm.Open(postgres.Open(dsn), gormConfig)
-	} else if cfg.Dialect == SQLITE {
+	case SQLITE:
 		return gorm.Open(sqlite.Open(cfg.Host), gormConfig)
 	}
 
