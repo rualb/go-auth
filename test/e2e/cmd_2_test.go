@@ -92,6 +92,8 @@ func TestAuthEchoHandler(t *testing.T) {
 
 func TestAuthSigninEchoHandler(t *testing.T) {
 
+	addUser()
+
 	/*
 		const testOnlyID = "test-only-1"
 		const testOnlyTel = "+999999999999"
