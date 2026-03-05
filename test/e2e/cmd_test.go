@@ -33,7 +33,7 @@ func setup() func() {
 
 	go cmd.Exec()
 
-	time.Sleep(1 * time.Second)
+	time.Sleep(5 * time.Second)
 
 	appService = cmd.AppService
 
