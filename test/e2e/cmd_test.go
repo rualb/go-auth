@@ -33,29 +33,37 @@ func setup() func() {
 
 	go cmd.Exec()
 
-	time.Sleep(5 * time.Second)
+	for range 10 {
+		time.Sleep(1 * time.Second)
+		if cmd.AppService != nil {
+			break
+		}
+	}
+
+	time.Sleep(2 * time.Second)
 
 	appService = cmd.AppService
-
-	db := appService.Repository()
-
-	{
-		//
-		testUserAcc, _ := service.NewUserAccount()
-		testUserAcc.ID = testOnlyUserID
-		testUserAcc.Tel = testOnlyUserTel
-		testUserAcc.SetPassword(testOnlyUserPw)
-		//
-		res := db.Save(&testUserAcc)
-		if res.Error != nil {
-			log.Fatalf("cannot create test-only user")
-		}
-		//
-	}
 
 	return cmd.Stop
 }
 
+func addUser() {
+
+	db := appService.Repository()
+
+	//
+	testUserAcc, _ := service.NewUserAccount()
+	testUserAcc.ID = testOnlyUserID
+	testUserAcc.Tel = testOnlyUserTel
+	testUserAcc.SetPassword(testOnlyUserPw)
+	//
+	res := db.Save(&testUserAcc)
+	if res.Error != nil {
+		log.Fatalf("cannot create test-only user")
+	}
+	//
+
+}
 func TestMain(m *testing.M) {
 	fmt.Println("starting test suite...")
 	stop := setup()

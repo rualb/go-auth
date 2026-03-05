@@ -200,6 +200,8 @@ func TestAuthSigninEchoHandler(t *testing.T) {
 
 func TestAuthSigninRawEchoHandler(t *testing.T) {
 
+	addUser()
+
 	e := echo.New()
 
 	req := httptest.NewRequest(http.MethodGet, consts.PathAuthSigninTelAPI, nil)
