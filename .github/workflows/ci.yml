@@ -1,13 +1,29 @@
-name: test
+name: ci
 
 on:
   push:
-    branches: []
-    tags: []
+    branches: ["**"]
+    tags: ["v*"]
   pull_request:
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: false
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.9.0
+          args: --timeout 5m
   test:
+    needs: lint
+    
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -50,4 +66,26 @@ jobs:
       run: |
         echo "Testing..."
         go test ./...
+  release:
+    needs: [lint, test]
+    if: startsWith(github.ref, 'refs/tags/v')
 
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: false
+
+      - name: Install GoReleaser
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          version: latest
+          args: release --clean --timeout 5m
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
