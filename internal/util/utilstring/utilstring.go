@@ -22,22 +22,26 @@ func NormalizeTel(tel string) string {
 
 func NormalizeEmail(email string) string {
 
-	parts := strings.Split(email, "@")
-	if len(parts) != 2 {
-		return email
-	}
+	// don't use aggressive normalisation, like '+', '.' for gmail
 
-	localPart := parts[0]
-	domainPart := parts[1]
+	return NormalizeText(email)
 
-	// Find the '+' character in the local part
-	if plusIndex := strings.Index(localPart, "+"); plusIndex != -1 {
-		// If found, remove everything after the '+'
-		localPart = localPart[:plusIndex]
-	}
+	// parts := strings.Split(email, "@")
+	// if len(parts) != 2 {
+	// 	return email
+	// }
 
-	// Return the normalized email
-	return NormalizeText(localPart + "@" + domainPart)
+	// localPart := parts[0]
+	// domainPart := parts[1]
+
+	// // Find the '+' character in the local part
+	// if plusIndex := strings.Index(localPart, "+"); plusIndex != -1 {
+	// 	// If found, remove everything after the '+'
+	// 	localPart = localPart[:plusIndex]
+	// }
+
+	// // Return the normalized email
+	// return NormalizeText(localPart + "@" + domainPart)
 }
 
 // // IsTelPrefix country prefix +123

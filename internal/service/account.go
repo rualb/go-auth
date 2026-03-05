@@ -33,11 +33,12 @@ const (
 
 // UserAccount Username,Email,NormalizedEmail are uniqueIndex with condition "not empty"
 type UserAccount struct {
-	ID              string `json:"id,omitempty" gorm:"size:255;primaryKey"`
-	Username        string `json:"username,omitempty" gorm:"size:255;uniqueIndex:,where:username != ''"`
-	Tel             string `json:"tel,omitempty" gorm:"size:255;uniqueIndex:,where:tel != ''"`
-	Email           string `json:"email,omitempty" gorm:"size:255"`                             // use this on emailing and show
-	NormalizedEmail string `json:"-" gorm:"size:255;uniqueIndex:,where:normalized_email != ''"` // use this on search
+	ID       string `json:"id,omitempty" gorm:"size:255;primaryKey"`
+	Username string `json:"username,omitempty" gorm:"size:255;uniqueIndex:,where:username != ''"`
+	Tel      string `json:"tel,omitempty" gorm:"size:255;uniqueIndex:,where:tel != ''"`
+	Email    string `json:"email,omitempty" gorm:"size:255;uniqueIndex:,where:email != ''"` // use this on search
+	// Email           string `json:"email,omitempty" gorm:"size:255"`                             // use this on emailing and show
+	// NormalizedEmail string `json:"-" gorm:"size:255;uniqueIndex:,where:normalized_email != ''"` // use this on search
 	// SecurityStamp   string // Key := Base32(Random(32))  HMACSHA1(Key)  Key == VTOQQ2PQKD7A2KTSXU7OFLKUNI7QEZRJ
 	PasswordHash string    `json:"-" gorm:"size:255"`
 	CreatedAt    time.Time `json:"-"`
@@ -76,10 +77,13 @@ func (x *UserAccount) SetTel(value string) {
 }
 
 func (x *UserAccount) SetEmail(value string) {
+
 	valueNorm := utilstring.NormalizeEmail(value)
 
-	x.Email = value
-	x.NormalizedEmail = valueNorm
+	// x.Email = value
+	// x.NormalizedEmail = valueNorm
+
+	x.Email = valueNorm
 
 	// x.Username = valueNorm
 }
@@ -142,7 +146,7 @@ type AccountService interface {
 	FindByID(id string) (*UserAccount, error)
 	FindByUsername(name string) (*UserAccount, error)
 	FindByTel(name string) (*UserAccount, error)
-	FindByNormalizedEmail(email string) (*UserAccount, error)
+	FindByEmail(email string) (*UserAccount, error)
 	CreateUserAccount(userAccount *UserAccount) (err error)
 	UpdateUserAccount(userAccount *UserAccount) (err error)
 
@@ -512,7 +516,7 @@ func (x defaultAccountService) FindByTel(tel string) (*UserAccount, error) {
 
 	return data, nil
 }
-func (x defaultAccountService) FindByNormalizedEmail(email string) (*UserAccount, error) {
+func (x defaultAccountService) FindByEmail(email string) (*UserAccount, error) {
 
 	if email == "" {
 		return nil, nil
@@ -526,7 +530,8 @@ func (x defaultAccountService) FindByNormalizedEmail(email string) (*UserAccount
 
 	data := new(UserAccount)
 
-	result := x.appService.Repository().Find(data, "normalized_email = ?", normalizedEmail)
+	// result := x.appService.Repository().Find(data, "normalized_email = ?", normalizedEmail)
+	result := x.appService.Repository().Find(data, "email = ?", normalizedEmail)
 
 	if result.Error != nil || result.RowsAffected == 0 {
 		return nil, result.Error

@@ -39,9 +39,11 @@ func TestSetTel(t *testing.T) {
 func TestSetEmail(t *testing.T) {
 
 	account, _ := NewUserAccount()
-	account.SetEmail("User@Example.com")
-	assert.Equal(t, "User@Example.com", account.Email)
-	assert.Equal(t, "user@example.com", account.NormalizedEmail)
+	account.SetEmail("User@Example.com ")
+	// assert.Equal(t, "User@Example.com", account.Email)
+	// assert.Equal(t, "user@example.com", account.NormalizedEmail)
+
+	assert.Equal(t, "user@example.com", account.Email)
 
 	deleteAllAccounts()
 }
@@ -273,7 +275,7 @@ func TestFindByTel(t *testing.T) {
 	deleteAllAccounts()
 }
 
-func TestFindByNormalizedEmail(t *testing.T) {
+func TestFindByEmail(t *testing.T) {
 
 	service := newAccountService(appService)
 	userAccount, _ := NewUserAccount()
@@ -285,9 +287,10 @@ func TestFindByNormalizedEmail(t *testing.T) {
 	err := service.CreateUserAccount(userAccount)
 	assert.NoError(t, err)
 
-	retrievedAccount, err := service.FindByNormalizedEmail("USER@EXAMPLE.COM")
+	retrievedAccount, err := service.FindByEmail("USER@EXAMPLE.COM")
 	assert.NoError(t, err)
-	assert.Equal(t, userAccount.NormalizedEmail, retrievedAccount.NormalizedEmail)
+	// assert.Equal(t, userAccount.NormalizedEmail, retrievedAccount.NormalizedEmail)
+	assert.Equal(t, userAccount.Email, retrievedAccount.Email)
 
 	deleteAllAccounts()
 }

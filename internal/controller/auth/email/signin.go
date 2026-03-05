@@ -176,7 +176,7 @@ func (x *AccountSigninController) handleDTO() error {
 
 		if isInputValid {
 
-			user, err = accountService.FindByNormalizedEmail(Email)
+			user, err = accountService.FindByEmail(Email)
 
 			if err != nil {
 				return err // error e.g. db connection problem
