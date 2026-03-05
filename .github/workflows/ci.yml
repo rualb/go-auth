@@ -8,26 +8,29 @@ on:
 
 jobs:
   lint:
+    name: Lint
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
           go-version: stable
-          cache: false
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v8
+          cache: true # Faster subsequent runs
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v6
         with:
-          version: v2.9.0
           args: --timeout 5m
+
   test:
-    needs: lint
-    
+    name: Test
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:13  # Use the desired PostgreSQL version (e.g., 13, 14, etc.)
+        image: postgres:15-alpine # Lightweight image
         ports:
           - 5432:5432
         env:
@@ -41,38 +44,6 @@ jobs:
           --health-retries=5
 
     steps:
-    - uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: stable
-        cache: false
-
-    - name: Wait for PostgreSQL to be ready
-      run: |
-        until pg_isready --host=localhost --port=5432 --username=postgres; do
-          echo "Waiting for PostgreSQL..."
-          sleep 1
-        done
-
-    - name: Test
-      env:
-        APP_DB_USER: postgres
-        APP_DB_PASSWORD: postgres
-        APP_DB_NAME: postgres
-        APP_DB_HOST: localhost
-        APP_DB_PORT: 5432
-      run: |
-        echo "Testing..."
-        go test ./...
-  release:
-    needs: [lint, test]
-    if: startsWith(github.ref, 'refs/tags/v')
-
-    runs-on: ubuntu-latest
-    
-    steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -80,12 +51,45 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: stable
-          cache: false
+          cache: true
 
-      - name: Install GoReleaser
-        uses: goreleaser/goreleaser-action@v5
+      - name: Wait for PostgreSQL
+        run: |
+          until pg_isready --host=localhost --port=5432 --username=postgres; do
+            echo "Waiting for PostgreSQL to be ready..."
+            sleep 1
+          done
+
+      - name: Run Tests
+        env:
+          APP_DB_USER: postgres
+          APP_DB_PASSWORD: postgres
+          APP_DB_NAME: postgres
+          APP_DB_HOST: localhost
+          APP_DB_PORT: 5432
+        run: go test -v -race -cover ./... # Added Race Detector and Coverage
+
+  release:
+    name: Release
+    needs: [lint, test] # Ensure release only happens if quality checks pass
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required by GoReleaser to generate changelogs correctly
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: true
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
         with:
           version: latest
-          args: release --clean --timeout 5m
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
