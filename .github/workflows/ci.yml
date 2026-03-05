@@ -71,16 +71,20 @@ jobs:
           APP_DB_PORT: 5432
         run: go test ./... # go test -v -race -cover ./... # Added Race Detector and Coverage
 
-  release:
+release:
     name: Release
-    needs: [lint, test] # Ensure release only happens if quality checks pass
+    needs: [lint, test]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    # Add this block:
+    permissions:
+      contents: write  # Needed to create the release and upload assets
+      packages: write  # Optional: only if you push docker images to GHCR
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Required by GoReleaser to generate changelogs correctly
+          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v5
