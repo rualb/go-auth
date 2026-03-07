@@ -1,6 +1,6 @@
 # go-auth
 
-A robust, production-ready authentication microservice written in Go. This service provides a centralized identity management system supporting multi-mode authentication (Email and Telephone), multi-step verification flows, and built-in security features.
+An authentication microservice written in Go. This service provides a centralized identity management system supporting multi-mode authentication (Email and Telephone), multi-step verification flows, and built-in security features.
 
 Designed to be decoupled and scalable, `go-auth` can serve as the identity provider for various distributed applications.
 
